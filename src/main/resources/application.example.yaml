@@ -1,3 +1,70 @@
+# ========================================================
+# Cấu hình Backend Clothes Api (Template)
+# ========================================================
+# Đây là file cấu hình mẫu. Dùng làm tham chiếu
+# để tạo các file cấu hình cho từng môi trường.
+#
+# CÁCH SỬ DỤNG:
+# 1. Copy file này để tạo cấu hình cho từng môi trường:
+#    - application-local.yaml       (môi trường phát triển local)
+#    - application-docker.yaml      (môi trường docker)
+#
+# 2. KHÔNG commit các file cấu hình thật có chứa secret lên git.
+# 3. Sử dụng environment variables hoặc secret manager
+#    cho các thông tin nhạy cảm.
+# ========================================================
+
+# ========================================================
+# CẤU HÌNH ỨNG DỤNG SPRING
+# ========================================================
 spring:
+  # --- Thông tin metadata của ứng dụng ---
   application:
-    name: ${APP_NAME:clothes}
+    # Được sử dụng trong log, metrics và service discovery
+    name: ${APP_NAME:clothes}       # Tên ứng dụng
+
+  # ========================================================
+  # CẤU HÌNH DATABASE (MySQL)
+  # ========================================================
+  datasource:
+    # URL kết nối database (hỗ trợ environment variables)
+    # Format: jdbc:mysql://host:port/database
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:clothes_db}
+
+    # Thông tin đăng nhập database (nên dùng env variables trong production)
+    username: ${DB_USERNAME:clothes_user}  # Username database
+    password: ${DB_PASSWORD:password}      # Password database
+
+    # JDBC driver cho MySQL
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # Cấu hình Connection Pool Hikari
+    hikari:
+      # Số lượng connection tối đa trong pool
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+
+      # Số lượng connection idle tối thiểu
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+
+      # Thời gian tối đa (ms) chờ lấy connection từ pool
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
+
+      # Thời gian tối đa (ms) một connection được idle
+      idle-timeout: ${DB_IDLE_TIMEOUT:600000}
+
+      # Thời gian sống tối đa (ms) của một connection
+      max-lifetime: ${DB_MAX_LIFETIME:1800000}
+
+      # Query dùng để kiểm tra connection còn hoạt động
+      connection-test-query: ${DB_TEST_QUERY:SELECT 1}
+
+      # Các cấu hình nâng cao cho datasource
+      data-source-properties:
+        # Cấu hình timezone cho kết nối database
+        serverTimezone: ${DB_TIMEZONE:Asia/Ho_Chi_Minh}
+
+        # Cấu hình SSL/TLS cho kết nối database
+        useSSL: ${DB_USE_SSL:false}        # Bật/tắt mã hóa SSL
+
+        # Cho phép lấy public key cho cơ chế authentication
+        allowPublicKeyRetrieval: ${DB_ALLOW_PUBLIC_KEY_RETRIEVAL:true}
