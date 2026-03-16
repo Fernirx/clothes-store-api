@@ -1,70 +1,167 @@
 # ========================================================
-# Cấu hình Backend Clothes Api (Template)
+# CẤU HÌNH BACKEND CLOTHES API (TEMPLATE)
 # ========================================================
-# Đây là file cấu hình mẫu. Dùng làm tham chiếu
-# để tạo các file cấu hình cho từng môi trường.
+# File cấu hình mẫu dùng làm tham chiếu để tạo các file
+# cấu hình cho từng môi trường triển khai.
 #
-# CÁCH SỬ DỤNG:
-# 1. Copy file này để tạo cấu hình cho từng môi trường:
-#    - application-local.yaml       (môi trường phát triển local)
-#    - application-docker.yaml      (môi trường docker)
+# CÁCH SỬ DỤNG
+#   1. Copy file này để tạo cấu hình cho từng môi trường:
+#        - application-local.yaml   (phát triển local)
+#        - application-docker.yaml  (chạy trong Docker)
 #
-# 2. KHÔNG commit các file cấu hình thật có chứa secret lên git.
-# 3. Sử dụng environment variables hoặc secret manager
-#    cho các thông tin nhạy cảm.
+#   2. KHÔNG commit file cấu hình có chứa secret lên Git.
+#
+#   3. Dùng Environment Variables hoặc Secret Manager
+#      để quản lý thông tin nhạy cảm.
 # ========================================================
 
-# ========================================================
-# CẤU HÌNH ỨNG DỤNG SPRING
-# ========================================================
+
+# == SPRING ==============================================
 spring:
-  # --- Thông tin metadata của ứng dụng ---
   application:
-    # Được sử dụng trong log, metrics và service discovery
-    name: ${APP_NAME:clothes}       # Tên ứng dụng
+    # Tên ứng dụng, dùng trong log, metrics và monitoring
+    name: ${APP_NAME:clothes}
 
-  # ========================================================
-  # CẤU HÌNH DATABASE (MySQL)
-  # ========================================================
+  # -- Database (MySQL) --
   datasource:
-    # URL kết nối database (hỗ trợ environment variables)
-    # Format: jdbc:mysql://host:port/database
+    # JDBC connection URL — format: jdbc:mysql://host:port/database
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:clothes_db}
 
-    # Thông tin đăng nhập database (nên dùng env variables trong production)
-    username: ${DB_USERNAME:clothes_user}  # Username database
-    password: ${DB_PASSWORD:password}      # Password database
+    # Thông tin đăng nhập — nên truyền qua environment variable ở production
+    username: ${DB_USERNAME:clothes_user}
+    password: ${DB_PASSWORD:password}
 
-    # JDBC driver cho MySQL
+    # JDBC driver cho MySQL 8+
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-    # Cấu hình Connection Pool Hikari
     hikari:
-      # Số lượng connection tối đa trong pool
+      # Số connection tối đa trong pool
       maximum-pool-size: ${DB_POOL_SIZE:10}
 
-      # Số lượng connection idle tối thiểu
+      # Số connection idle tối thiểu luôn được giữ sẵn
       minimum-idle: ${DB_POOL_MIN_IDLE:5}
 
-      # Thời gian tối đa (ms) chờ lấy connection từ pool
+      # Thời gian tối đa chờ lấy connection từ pool trước khi throw exception (ms)
       connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
 
-      # Thời gian tối đa (ms) một connection được idle
+      # Thời gian tối đa một connection được phép idle trước khi bị đóng (ms)
       idle-timeout: ${DB_IDLE_TIMEOUT:600000}
 
-      # Thời gian sống tối đa (ms) của một connection
+      # Thời gian sống tối đa của một connection, sau đó sẽ bị thay thế (ms)
       max-lifetime: ${DB_MAX_LIFETIME:1800000}
 
       # Query dùng để kiểm tra connection còn hoạt động
       connection-test-query: ${DB_TEST_QUERY:SELECT 1}
 
-      # Các cấu hình nâng cao cho datasource
       data-source-properties:
-        # Cấu hình timezone cho kết nối database
+        # Timezone áp dụng cho kết nối database
         serverTimezone: ${DB_TIMEZONE:Asia/Ho_Chi_Minh}
 
-        # Cấu hình SSL/TLS cho kết nối database
-        useSSL: ${DB_USE_SSL:false}        # Bật/tắt mã hóa SSL
+        # Tắt SSL khi kết nối — bật lên ở production nếu cần bảo mật
+        useSSL: ${DB_USE_SSL:false}
 
-        # Cho phép lấy public key cho cơ chế authentication
+        # Cho phép client lấy public key từ server khi xác thực
         allowPublicKeyRetrieval: ${DB_ALLOW_PUBLIC_KEY_RETRIEVAL:true}
+
+  # -- JPA / Hibernate --
+  jpa:
+    hibernate:
+      # validate: kiểm tra schema khớp với entity, không tự tạo hay sửa
+      # Bắt buộc dùng validate khi quản lý schema bằng Flyway hoặc Liquibase
+      ddl-auto: validate
+
+    # In SQL ra log để debug — tắt ở production
+    show-sql: ${JPA_SHOW_SQL:false}
+
+    properties:
+      hibernate:
+        # Format SQL cho dễ đọc trong log
+        format_sql: true
+
+        # Dialect tương ứng với phiên bản MySQL đang dùng
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQL8Dialect}
+
+        # Thêm comment mô tả vào câu SQL do Hibernate generate
+        use_sql_comments: ${HIBERNATE_SQL_COMMENTS:true}
+
+        jdbc:
+          # Số statement gom vào một batch khi thực thi
+          batch_size: ${HIBERNATE_BATCH_SIZE:20}
+
+          # Sắp xếp lại thứ tự INSERT/UPDATE để tối ưu hiệu quả batch
+          order_inserts: ${HIBERNATE_ORDER_INSERTS:true}
+          order_updates: ${HIBERNATE_ORDER_UPDATES:true}
+
+  # -- Servlet Encoding --
+  servlet:
+    encoding:
+      # Encoding mặc định cho toàn bộ request và response
+      charset: UTF-8
+
+      # Bật filter encoding
+      enabled: true
+
+      # Ép dùng charset trên, kể cả khi client khai báo encoding khác trong header
+      force: true
+
+  # -- Error Handling --
+  web:
+    error:
+      # Ẩn message exception — tránh lộ thông tin nội bộ ra client
+      include-message: never
+
+      # Ẩn chi tiết lỗi binding/validation
+      include-binding-errors: never
+
+      # Ẩn stacktrace — tuyệt đối không để lộ ở production
+      include-stacktrace: never
+
+
+# == SERVER ==============================================
+server:
+  # Port lắng nghe HTTP request
+  port: ${SERVER_PORT:8080}
+
+  # -- Tomcat --
+  tomcat:
+    threads:
+      # Số thread worker tối đa xử lý request đồng thời
+      max: ${SERVER_MAX_THREADS:200}
+
+      # Số thread tối thiểu luôn được giữ sẵn, tránh delay khởi tạo
+      min-spare: ${SERVER_MIN_THREADS:20}
+
+    # Số TCP connection tối đa server chấp nhận cùng lúc
+    max-connections: ${SERVER_MAX_CONNECTIONS:1000}
+
+    # Số request tối đa được queue khi toàn bộ thread đang bận
+    accept-count: ${SERVER_ACCEPT_COUNT:100}
+
+    # Thời gian tối đa chờ client gửi request sau khi kết nối TCP (ms)
+    connection-timeout: ${SERVER_CONNECTION_TIMEOUT:5000}
+
+  servlet:
+    # Base path cho toàn bộ API
+    context-path: ${SERVER_CONTEXT_PATH:/api/clothes}
+
+
+# == APPLICATION =========================================
+application:
+
+  # -- CORS --
+  cors:
+    # Danh sách origin được phép gọi API — dùng dấu phẩy để khai báo nhiều origin
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://yourdomain}
+
+    # HTTP method được phép trong CORS request
+    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS,PATCH}
+
+    # Header được phép gửi trong request — dùng * để cho phép tất cả
+    allowed-headers: ${CORS_ALLOWED_HEADERS:*}
+
+    # Cho phép gửi credentials như cookie hoặc Authorization header
+    allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+
+    # Thời gian browser cache kết quả preflight request
+    # PT1H = 1 giờ | PT30M = 30 phút
+    max-age: ${CORS_MAX_AGE:PT1H}
