@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.util;
+package vn.fernirx.clothes.common.util;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.PageRequest;

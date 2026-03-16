@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.exception;
+package vn.fernirx.clothes.common.exception;
 
 import lombok.Getter;
 import vn.fernirx.clothes.common.enums.ErrorCode;
