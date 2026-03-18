@@ -147,6 +147,42 @@ server:
 
 # == APPLICATION =========================================
 application:
+  # -- Security --
+  security:
+    # Cấu hình xác thực JWT (JSON Web Token)
+    jwt:
+      # Khóa bí mật dùng để ký và xác thực token
+      # CẢNH BÁO: BẮT BUỘC phải thay bằng giá trị ngẫu nhiên mạnh khi chạy production!
+      # Độ dài khuyến nghị tối thiểu: 256 bit (32 ký tự)
+      secret: ${JWT_SECRET:ChangeThisJWTSecretInProduction}
+
+      # Cấu hình access token
+      access:
+        # Thời gian hết hạn của access token (định dạng ISO-8601 Duration)
+        # Format: PT[giờ]H[phút]M[giây]S
+        # Ví dụ: PT15M (15 phút), PT1H (1 giờ), PT30M (30 phút)
+        # Khuyến nghị: thời gian ngắn (5-15 phút) để tăng bảo mật
+        expiration: ${JWT_ACCESS_EXPIRATION:PT10M}
+
+      # Cấu hình refresh token
+      refresh:
+        # Thời gian hết hạn của refresh token (định dạng ISO-8601 Duration)
+        # Format: P[ngày]D hoặc PT[giờ]H
+        # Ví dụ: P7D (7 ngày), P30D (30 ngày), PT24H (24 giờ)
+        # Khuyến nghị: thời gian dài hơn (7-30 ngày) để tránh phải đăng nhập lại thường xuyên
+        expiration: ${JWT_REFRESH_EXPIRATION:P7D}
+
+      # Cấu hình token đặt lại mật khẩu
+      reset-password:
+        # Thời gian hết hạn của token đặt lại mật khẩu (định dạng ISO-8601 Duration)
+        # Format: PT[giờ]H[phút]M
+        # Ví dụ: PT15M (15 phút), PT30M (30 phút), PT1H (1 giờ)
+        # Khuyến nghị: thời gian ngắn (15-30 phút) để đảm bảo bảo mật
+        expiration: ${JWT_RESET_PASSWORD_EXPIRATION:PT15M}
+
+      # Định danh hệ thống phát hành JWT (issuer - claim 'iss')
+      # Dùng để xác định hệ thống đã tạo ra token
+      issuer: ${JWT_ISSUER:Clothes-API}
 
   # -- CORS --
   cors:
