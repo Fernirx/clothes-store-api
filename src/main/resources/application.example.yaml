@@ -25,7 +25,12 @@ spring:
   # -- Database (MySQL) --
   datasource:
     # JDBC connection URL — format: jdbc:mysql://host:port/database
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:clothes_db}
+    url: >-
+      jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:clothes_db}
+      ?createDatabaseIfNotExist=${DB_CREATE_IF_NOT_EXIST:true}
+      &useSSL=${DB_USE_SSL:false}
+      &serverTimezone=${DB_TIMEZONE:Asia/Ho_Chi_Minh}
+      &allowPublicKeyRetrieval=true
 
     # Thông tin đăng nhập — nên truyền qua environment variable ở production
     username: ${DB_USERNAME:clothes_user}
@@ -53,16 +58,6 @@ spring:
       # Query dùng để kiểm tra connection còn hoạt động
       connection-test-query: ${DB_TEST_QUERY:SELECT 1}
 
-      data-source-properties:
-        # Timezone áp dụng cho kết nối database
-        serverTimezone: ${DB_TIMEZONE:Asia/Ho_Chi_Minh}
-
-        # Tắt SSL khi kết nối — bật lên ở production nếu cần bảo mật
-        useSSL: ${DB_USE_SSL:false}
-
-        # Cho phép client lấy public key từ server khi xác thực
-        allowPublicKeyRetrieval: ${DB_ALLOW_PUBLIC_KEY_RETRIEVAL:true}
-
   # -- JPA / Hibernate --
   jpa:
     hibernate:
@@ -79,7 +74,7 @@ spring:
         format_sql: true
 
         # Dialect tương ứng với phiên bản MySQL đang dùng
-        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQL8Dialect}
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.MySQLDialect}
 
         # Thêm comment mô tả vào câu SQL do Hibernate generate
         use_sql_comments: ${HIBERNATE_SQL_COMMENTS:true}
@@ -91,6 +86,31 @@ spring:
           # Sắp xếp lại thứ tự INSERT/UPDATE để tối ưu hiệu quả batch
           order_inserts: ${HIBERNATE_ORDER_INSERTS:true}
           order_updates: ${HIBERNATE_ORDER_UPDATES:true}
+
+  # -- Flyway --
+  flyway:
+    # Bật/tắt Flyway để quản lý migration database
+    enabled: true
+
+    # Tự động tạo baseline cho database đã tồn tại
+    # Dùng khi tích hợp Flyway vào hệ thống đã có sẵn schema
+    baseline-on-migrate: true
+
+    # Đường dẫn chứa các file migration
+    # Mặc định: classpath:db/migration
+    locations: ${FLYWAY_LOCATIONS:classpath:db/migration}
+
+    # Kiểm tra tính toàn vẹn của migration trước khi chạy
+    # Ngăn việc chạy khi file migration bị sửa hoặc không đồng bộ
+    validate-on-migrate: true
+
+    # Không cho phép chạy migration sai thứ tự version
+    # Nên giữ false ở production để đảm bảo tính nhất quán
+    out-of-order: false
+
+    # Vô hiệu hóa lệnh clean (xóa toàn bộ schema)
+    # Tránh mất dữ liệu ngoài ý muốn — nên luôn bật ở production
+    clean-disabled: true
 
   # -- Servlet Encoding --
   servlet:
@@ -154,7 +174,7 @@ application:
       # Khóa bí mật dùng để ký và xác thực token
       # CẢNH BÁO: BẮT BUỘC phải thay bằng giá trị ngẫu nhiên mạnh khi chạy production!
       # Độ dài khuyến nghị tối thiểu: 256 bit (32 ký tự)
-      secret: ${JWT_SECRET:ChangeThisJWTSecretInProduction}
+      secret: ${JWT_SECRET:MySuperSecretKeyForJwtThatIsAtLeast32CharsLong}
 
       # Cấu hình access token
       access:
