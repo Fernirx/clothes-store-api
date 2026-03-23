@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Thực Email - Clothes</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .email-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .email-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .email-body {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 18px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .otp-container {
+            background-color: #f8f9fa;
+            border: 2px dashed #11998e;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .otp-label {
+            font-size: 14px;
+            color: #666666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .otp-code {
+            font-size: 36px;
+            font-weight: 700;
+            color: #11998e;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+
+        .otp-expiry {
+            font-size: 14px;
+            color: #999999;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 14px;
+            color: #0c5460;
+            line-height: 1.5;
+        }
+
+        .benefits-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+
+        .benefits-section h3 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .benefits-section ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .benefits-section li {
+            font-size: 14px;
+            color: #666666;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #11998e15 0%, #38ef7d15 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .welcome-message p {
+            margin: 5px 0;
+            font-size: 15px;
+            color: #333333;
+        }
+
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .email-footer p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #999999;
+        }
+
+        .brand-name {
+            color: #11998e;
+            font-weight: 600;
+        }
+
+        .link {
+            color: #11998e;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+<div class="email-container">
+    <!-- Header -->
+    <div class="email-header">
+        <h1>Xác Thực Địa Chỉ Email</h1>
+    </div>
+
+    <!-- Body -->
+    <div class="email-body">
+        <p class="greeting">Chào mừng <!--/*@thymesVar id="username" type=""*/-->
+            <strong th:text="${username}">User</strong>!
+        </p>
+
+        <p class="message">
+            Cảm ơn bạn đã đăng ký tài khoản <span class="brand-name">Clothes</span>!
+            Để hoàn tất quá trình đăng ký và kích hoạt tài khoản của bạn, vui lòng xác thực địa chỉ email
+            bằng cách sử dụng mã xác thực bên dưới.
+        </p>
+
+        <!-- OTP Code -->
+        <div class="otp-container">
+            <div class="otp-label">Mã Xác Thực Của Bạn</div>
+            <!--/*@thymesVar id="otpCode" type=""*/-->
+            <div class="otp-code" th:text="${otpCode}">123456</div>
+            <div class="otp-expiry">
+                Mã này sẽ hết hạn sau <!--/*@thymesVar id="expiryMinutes" type=""*/-->
+                <strong th:text="${expiryMinutes}">5</strong> phút
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <p>
+                <strong>Bước tiếp theo:</strong> Nhập mã xác thực này vào trang đăng ký
+                để xác minh email và kích hoạt tài khoản của bạn. Sau khi xác minh, bạn sẽ có quyền truy cập đầy đủ
+                vào tất cả các tính năng của Clothes.
+            </p>
+        </div>
+
+        <p class="message">
+            Nếu bạn không tạo tài khoản với Clothes, vui lòng bỏ qua email này hoặc liên hệ với chúng tôi tại
+            <a href="mailto:support@clothes.com" class="link">support@clothes.com</a>
+        </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="email-footer">
+        <p><strong class="brand-name">Clothes</strong> - Hệ Thống Kinh Doanh Áo Online</p>
+        <p>Đây là email tự động, vui lòng không trả lời tin nhắn này.</p>
+        <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Clothes. Bản quyền thuộc về Clothes.</p>
+    </div>
+</div>
+</body>
+
+</html>
