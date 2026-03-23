@@ -1,0 +1,108 @@
+package vn.fernirx.clothes.inventory.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vn.fernirx.clothes.catalog.entity.ProductVariant;
+import vn.fernirx.clothes.catalog.repository.ProductVariantRepository;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
+import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.common.response.PageResponse;
+import vn.fernirx.clothes.common.util.PaginationUtil;
+import vn.fernirx.clothes.inventory.dto.request.StockAdjustmentItemRequest;
+import vn.fernirx.clothes.inventory.dto.request.StockAdjustmentRequest;
+import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentResponse;
+import vn.fernirx.clothes.inventory.entity.StockAdjustment;
+import vn.fernirx.clothes.inventory.entity.StockAdjustmentItem;
+import vn.fernirx.clothes.inventory.enums.AdjustmentStatus;
+import vn.fernirx.clothes.inventory.mapper.StockAdjustmentMapper;
+import vn.fernirx.clothes.inventory.repository.StockAdjustmentRepository;
+import vn.fernirx.clothes.inventory.service.StockAdjustmentService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class StockAdjustmentServiceImpl implements StockAdjustmentService {
+
+    private final StockAdjustmentRepository adjustmentRepository;
+    private final ProductVariantRepository productVariantRepository;
+    private final StockAdjustmentMapper adjustmentMapper;
+
+    @Override
+    public PageResponse<StockAdjustmentResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, sortDir);
+        Page<StockAdjustmentResponse> result = adjustmentRepository.findAll(pageable)
+                .map(adjustmentMapper::toResponse);
+        return PageResponse.of(result);
+    }
+
+    @Override
+    public StockAdjustmentResponse getById(Long id) {
+        StockAdjustment adjustment = adjustmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+        return adjustmentMapper.toResponse(adjustment);
+    }
+
+    @Override
+    @Transactional
+    public StockAdjustmentResponse create(StockAdjustmentRequest request) {
+        StockAdjustment adjustment = adjustmentMapper.toEntity(request);
+        List<StockAdjustmentItem> items = buildItems(request.getItems(), adjustment);
+        adjustment.getItems().addAll(items);
+        return adjustmentMapper.toResponse(adjustmentRepository.save(adjustment));
+    }
+
+    @Override
+    @Transactional
+    public StockAdjustmentResponse update(Long id, StockAdjustmentRequest request) {
+        StockAdjustment adjustment = adjustmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+
+        adjustment.setReason(request.getReason());
+        adjustment.setNotes(request.getNotes());
+        if (request.getStatus() != null) {
+            adjustment.setStatus(request.getStatus());
+        }
+
+        adjustment.getItems().clear();
+        List<StockAdjustmentItem> items = buildItems(request.getItems(), adjustment);
+        adjustment.getItems().addAll(items);
+
+        return adjustmentMapper.toResponse(adjustmentRepository.save(adjustment));
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        StockAdjustment adjustment = adjustmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+        if (adjustment.getStatus() != AdjustmentStatus.DRAFT) {
+            throw new ResourceInUseException("StockAdjustment with id " + id + " (only DRAFT adjustments can be deleted)");
+        }
+        adjustmentRepository.delete(adjustment);
+    }
+
+    private List<StockAdjustmentItem> buildItems(List<StockAdjustmentItemRequest> itemRequests,
+                                                  StockAdjustment adjustment) {
+        List<StockAdjustmentItem> items = new ArrayList<>();
+        if (itemRequests == null || itemRequests.isEmpty()) {
+            return items;
+        }
+        for (StockAdjustmentItemRequest itemRequest : itemRequests) {
+            ProductVariant variant = productVariantRepository.findById(itemRequest.getVariantId())
+                    .orElseThrow(() -> new ResourceNotFoundException("ProductVariant with id " + itemRequest.getVariantId()));
+            StockAdjustmentItem item = new StockAdjustmentItem();
+            item.setAdjustment(adjustment);
+            item.setVariant(variant);
+            item.setQuantityBefore(itemRequest.getQuantityBefore());
+            item.setQuantityAfter(itemRequest.getQuantityAfter());
+            items.add(item);
+        }
+        return items;
+    }
+}

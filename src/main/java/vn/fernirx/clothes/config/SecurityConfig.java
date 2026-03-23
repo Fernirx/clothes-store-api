@@ -1,5 +1,6 @@
 package vn.fernirx.clothes.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +17,11 @@ import vn.fernirx.clothes.security.JwtAuthenticationFilter;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
