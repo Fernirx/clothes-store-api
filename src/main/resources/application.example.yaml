@@ -136,6 +136,51 @@ spring:
       # Ẩn stacktrace — tuyệt đối không để lộ ở production
       include-stacktrace: never
 
+  # -- MAIL --
+  mail:
+    # Địa chỉ SMTP server
+    # Một số nhà cung cấp phổ biến:
+    #   - Gmail: smtp.gmail.com
+    #   - Outlook: smtp-mail.outlook.com
+    #   - Yahoo: smtp.mail.yahoo.com
+    host: ${MAIL_HOST:smtp.gmail.com}
+
+    # Cổng SMTP
+    # Các cổng phổ biến:
+    #   - 587: TLS/STARTTLS (khuyến nghị)
+    #   - 465: SSL
+    #   - 25: Không mã hóa (KHÔNG khuyến nghị)
+    port: ${MAIL_PORT:587}
+
+    # Username để xác thực SMTP (thường là email)
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+
+    # Password để xác thực SMTP
+    # Với Gmail: dùng App Password, KHÔNG dùng mật khẩu thường
+    # Với nhà cung cấp khác: dùng app password hoặc password thường
+    # CẢNH BÁO: Không commit password thật lên Git!
+    password: ${MAIL_PASSWORD:your-app-password}
+
+    # Các cấu hình bổ sung cho SMTP
+    properties:
+      # Bật xác thực SMTP
+      mail.smtp.auth: ${MAIL_SMTP_AUTH:true}
+
+      # Bật STARTTLS (nâng cấp kết nối lên TLS)
+      # Bắt buộc khi dùng port 587
+      mail.smtp.starttls.enable: ${MAIL_STARTTLS_ENABLE:true}
+
+      # Timeout khi kết nối tới SMTP server (ms)
+      # Thời gian tối đa chờ kết nối
+      mail.smtp.connection-timeout: ${MAIL_CONNECTION_TIMEOUT:5000}
+
+      # Timeout khi đọc dữ liệu từ SMTP server (ms)
+      # Thời gian tối đa chờ phản hồi
+      mail.smtp.timeout: ${MAIL_TIMEOUT:5000}
+
+      # Timeout khi ghi dữ liệu tới SMTP server (ms)
+      # Thời gian tối đa gửi dữ liệu
+      mail.smtp.write-timeout: ${MAIL_WRITE_TIMEOUT:5000}
 
 # == SERVER ==============================================
 server:
