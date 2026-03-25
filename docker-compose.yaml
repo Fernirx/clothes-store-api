@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: clothes-api
+    container_name: ${APP_NAME}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${HOST_PORT}:${SERVER_PORT}"
+    env_file:
+      - .env
+    networks:
+      - clothes-net
+  
+  mysql:
+    image: mysql:8.0.45
+    container_name: clothes-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${DB_EXTERNAL_PORT}:3306"
+    volumes:
+      - clothes_mysql_data:/var/lib/mysql
+    networks:
+      - clothes-net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  clothes_mysql_data:
+    name: clothes_mysql_data
+
+networks:
+  clothes-net:
