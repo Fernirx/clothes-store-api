@@ -1,6 +1,6 @@
 package vn.fernirx.clothes.catalog.dto.response;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public record CategoryResponse(
         Long id,
@@ -10,7 +10,7 @@ public record CategoryResponse(
         Long parentId,
         Integer displayOrder,
         Boolean isActive,
-        Instant createdAt,
-        Instant updatedAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

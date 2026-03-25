@@ -25,6 +25,9 @@ public class Brand extends BaseEntity {
     @Column(name = "logo_url")
     private String logoUrl;
 
+    @Column(name = "logo_public_id")
+    private String logoPublicId;
+
     @Column(name = "is_active")
     private Boolean isActive = true;
 }

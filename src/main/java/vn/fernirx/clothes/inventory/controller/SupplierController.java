@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.inventory.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,13 @@ import vn.fernirx.clothes.inventory.service.SupplierService;
 @RestController
 @RequestMapping("/api/v1/suppliers")
 @RequiredArgsConstructor
+@Tag(name = "Suppliers", description = "Các API liên quan đến nhà cung cấp")
 public class SupplierController {
 
     private final SupplierService supplierService;
 
     @GetMapping
+    @Operation( summary = "Lấy danh sách nhà cung cấp", description = "Lấy danh sách tất cả các nhà cung cấp với phân trang và sắp xếp")
     public ResponseEntity<SuccessResponse<PageResponse<SupplierResponse>>> getAll(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -30,12 +34,14 @@ public class SupplierController {
     }
 
     @GetMapping("/{id}")
+    @Operation( summary = "Lấy chi tiết nhà cung cấp", description = "Lấy chi tiết một nhà cung cấp theo ID")
     public ResponseEntity<SuccessResponse<SupplierResponse>> getById(@PathVariable Long id) {
         SupplierResponse data = supplierService.getById(id);
         return ResponseEntity.ok(SuccessResponse.of("Supplier retrieved successfully", data));
     }
 
     @PostMapping
+    @Operation( summary = "Tạo nhà cung cấp mới", description = "Tạo một nhà cung cấp mới với thông tin chi tiết")
     public ResponseEntity<SuccessResponse<SupplierResponse>> create(
             @Valid @RequestBody SupplierRequest request) {
 
@@ -45,6 +51,7 @@ public class SupplierController {
     }
 
     @PutMapping("/{id}")
+    @Operation ( summary = "Cập nhật nhà cung cấp", description = "Cập nhật thông tin của một nhà cung cấp theo ID")
     public ResponseEntity<SuccessResponse<SupplierResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody SupplierRequest request) {
@@ -54,6 +61,7 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation ( summary = "Xóa nhà cung cấp", description = "Xóa một nhà cung cấp theo ID")
     public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id) {
         supplierService.delete(id);
         return ResponseEntity.ok(SuccessResponse.of("Supplier deleted successfully"));

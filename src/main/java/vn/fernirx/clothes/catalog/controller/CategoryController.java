@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.catalog.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,11 +18,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@Tag(name = "Category API", description = "Các endpoint để quản lý danh mục sản phẩm")
 public class CategoryController {
 
     private final CategoryService categoryService;
 
     @GetMapping
+    @Operation(summary = "Lấy danh sách tất cả danh mục", description = "Lấy danh sách tất cả danh mục với phân trang và sắp xếp tùy chọn")
     public ResponseEntity<SuccessResponse<PageResponse<CategoryResponse>>> getAll(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -32,18 +36,21 @@ public class CategoryController {
     }
 
     @GetMapping("/roots")
+    @Operation(summary = "Lấy danh sách danh mục gốc", description = "Lấy danh sách các danh mục gốc (không có danh mục cha)")
     public ResponseEntity<SuccessResponse<List<CategoryResponse>>> getRootCategories() {
         List<CategoryResponse> data = categoryService.getRootCategories();
         return ResponseEntity.ok(SuccessResponse.of("Root categories retrieved successfully", data));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Lấy thông tin danh mục theo ID", description = "Lấy thông tin chi tiết của một danh mục dựa trên ID")
     public ResponseEntity<SuccessResponse<CategoryResponse>> getById(@PathVariable Long id) {
         CategoryResponse data = categoryService.getById(id);
         return ResponseEntity.ok(SuccessResponse.of("Category retrieved successfully", data));
     }
 
     @PostMapping
+    @Operation(summary = "Tạo mới danh mục", description = "Tạo mới một danh mục sản phẩm với thông tin được cung cấp")
     public ResponseEntity<SuccessResponse<CategoryResponse>> create(
             @Valid @RequestBody CategoryRequest request) {
 
@@ -53,6 +60,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Cập nhật danh mục", description = "Cập nhật thông tin của một danh mục sản phẩm dựa trên ID")
     public ResponseEntity<SuccessResponse<CategoryResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request) {
@@ -62,6 +70,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Xóa danh mục", description = "Xóa một danh mục sản phẩm dựa trên ID")
     public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id) {
         categoryService.delete(id);
         return ResponseEntity.ok(SuccessResponse.of("Category deleted successfully"));

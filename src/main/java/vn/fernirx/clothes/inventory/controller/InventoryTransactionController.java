@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.inventory.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,13 @@ import vn.fernirx.clothes.inventory.service.InventoryTransactionService;
 @RestController
 @RequestMapping("/api/v1/inventory-transactions")
 @RequiredArgsConstructor
+@Tag(name = "Inventory Transactions API", description = "Các API quản lý giao dịch tồn kho")
 public class InventoryTransactionController {
 
     private final InventoryTransactionService transactionService;
 
     @GetMapping
+    @Operation(summary = "Lấy danh sách giao dịch tồn kho", description = "Lấy danh sách tất cả giao dịch tồn kho với phân trang và sắp xếp")
     public ResponseEntity<SuccessResponse<PageResponse<InventoryTransactionResponse>>> getAll(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -31,12 +35,14 @@ public class InventoryTransactionController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Lấy chi tiết giao dịch tồn kho", description = "Lấy chi tiết một giao dịch tồn kho theo ID")
     public ResponseEntity<SuccessResponse<InventoryTransactionResponse>> getById(@PathVariable Long id) {
         InventoryTransactionResponse data = transactionService.getById(id);
         return ResponseEntity.ok(SuccessResponse.of("Inventory transaction retrieved successfully", data));
     }
 
     @GetMapping("/by-variant/{variantId}")
+    @Operation( summary = "Lấy giao dịch tồn kho theo variant", description = "Lấy danh sách giao dịch tồn kho liên quan đến một variant cụ thể với phân trang")
     public ResponseEntity<SuccessResponse<PageResponse<InventoryTransactionResponse>>> getByVariantId(
             @PathVariable Long variantId,
             @RequestParam(required = false) Integer page,
@@ -48,6 +54,7 @@ public class InventoryTransactionController {
     }
 
     @PostMapping
+    @Operation(summary = "Tạo giao dịch tồn kho mới", description = "Tạo một giao dịch tồn kho mới, có thể là nhập kho, xuất kho hoặc điều chỉnh")
     public ResponseEntity<SuccessResponse<InventoryTransactionResponse>> create(
             @Valid @RequestBody InventoryTransactionRequest request) {
 

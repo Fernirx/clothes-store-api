@@ -10,7 +10,7 @@ import vn.fernirx.clothes.catalog.entity.ProductVariant;
 import vn.fernirx.clothes.inventory.enums.ReferenceType;
 import vn.fernirx.clothes.inventory.enums.TransactionType;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,6 +27,9 @@ public class InventoryTransaction {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id", nullable = false)
     private ProductVariant variant;
+
+    @Column(name = "created_by")
+    private Long createdBy;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
@@ -48,10 +51,10 @@ public class InventoryTransaction {
     @Column(name = "reference_id")
     private Long referenceId;
 
-    @Column(name = "notes", columnDefinition = "TEXT")
+    @Column(name = "note", columnDefinition = "TEXT")
     private String notes;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }

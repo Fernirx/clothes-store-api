@@ -1,6 +1,6 @@
 package vn.fernirx.clothes.catalog.dto.response;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public record BrandResponse(
         Long id,
@@ -8,8 +8,9 @@ public record BrandResponse(
         String slug,
         String description,
         String logoUrl,
+        String logoPublicId,
         Boolean isActive,
-        Instant createdAt,
-        Instant updatedAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

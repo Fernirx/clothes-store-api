@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.catalog.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,11 +16,13 @@ import vn.fernirx.clothes.common.response.SuccessResponse;
 @RestController
 @RequestMapping("/api/v1/brands")
 @RequiredArgsConstructor
+@Tag(name = "Brand API", description = "Các endpoint liên quan đến thương hiệu sản phẩm")
 public class BrandController {
 
     private final BrandService brandService;
 
     @GetMapping
+    @Operation(summary = "Lấy danh sách thương hiệu", description = "Lấy danh sách tất cả thương hiệu với phân trang và sắp xếp")
     public ResponseEntity<SuccessResponse<PageResponse<BrandResponse>>> getAll(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -29,18 +33,21 @@ public class BrandController {
         return ResponseEntity.ok(SuccessResponse.of("Brands retrieved successfully", data));
     }
 
+    @Operation(summary = "Lấy thương hiệu theo ID", description = "Lấy thông tin chi tiết của một thương hiệu dựa trên ID")
     @GetMapping("/{id}")
     public ResponseEntity<SuccessResponse<BrandResponse>> getById(@PathVariable Long id) {
         BrandResponse data = brandService.getById(id);
         return ResponseEntity.ok(SuccessResponse.of("Brand retrieved successfully", data));
     }
 
+    @Operation(summary = "Lấy thương hiệu theo slug", description = "Lấy thông tin chi tiết của một thương hiệu dựa trên slug")
     @GetMapping("/slug/{slug}")
     public ResponseEntity<SuccessResponse<BrandResponse>> getBySlug(@PathVariable String slug) {
         BrandResponse data = brandService.getBySlug(slug);
         return ResponseEntity.ok(SuccessResponse.of("Brand retrieved successfully", data));
     }
 
+    @Operation(summary = "Tạo mới thương hiệu", description = "Tạo mới một thương hiệu với thông tin được cung cấp")
     @PostMapping
     public ResponseEntity<SuccessResponse<BrandResponse>> create(
             @Valid @RequestBody BrandRequest request) {
@@ -50,6 +57,7 @@ public class BrandController {
                 .body(SuccessResponse.of("Brand created successfully", data));
     }
 
+    @Operation(summary = "Cập nhật thương hiệu", description = "Cập nhật thông tin của một thương hiệu dựa trên ID")
     @PutMapping("/{id}")
     public ResponseEntity<SuccessResponse<BrandResponse>> update(
             @PathVariable Long id,
@@ -59,6 +67,7 @@ public class BrandController {
         return ResponseEntity.ok(SuccessResponse.of("Brand updated successfully", data));
     }
 
+    @Operation(summary = "Xóa thương hiệu", description = "Xóa một thương hiệu dựa trên ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id) {
         brandService.delete(id);

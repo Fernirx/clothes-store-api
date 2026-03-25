@@ -12,9 +12,13 @@ public class StockAdjustmentItemRequest {
     @NotNull(message = "Variant ID is required")
     private Long variantId;
 
+    private int quantityChange;
+
     @Min(value = 0, message = "Quantity before must be zero or greater")
     private int quantityBefore;
 
     @Min(value = 0, message = "Quantity after must be zero or greater")
     private int quantityAfter;
+
+    private String note;
 }
