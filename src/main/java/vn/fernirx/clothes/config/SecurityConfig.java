@@ -10,8 +10,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
-import vn.fernirx.clothes.handler.JwtAuthenticationEntryPoint;
-import vn.fernirx.clothes.security.JwtAuthenticationFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -19,7 +17,7 @@ public class SecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper  objectMapper() {
         return new ObjectMapper();
     }
 
