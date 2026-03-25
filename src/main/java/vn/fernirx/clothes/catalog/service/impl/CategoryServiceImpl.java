@@ -75,16 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResourceAlreadyExistsException("Category with slug '" + request.getSlug() + "'");
         }
 
-        category.setName(request.getName());
-        category.setSlug(request.getSlug());
-        category.setDescription(request.getDescription());
-
-        if (request.getDisplayOrder() != null) {
-            category.setDisplayOrder(request.getDisplayOrder());
-        }
-        if (request.getIsActive() != null) {
-            category.setIsActive(request.getIsActive());
-        }
+        categoryMapper.updateFromRequest(request, category);
 
         if (request.getParentId() != null) {
             Category parent = findCategoryById(request.getParentId());
@@ -106,6 +97,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category"));
     }
 }

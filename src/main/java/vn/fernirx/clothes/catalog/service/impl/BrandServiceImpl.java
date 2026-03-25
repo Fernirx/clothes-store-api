@@ -41,7 +41,7 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public BrandResponse getBySlug(String slug) {
         Brand brand = brandRepository.findBySlug(slug)
-                .orElseThrow(() -> new ResourceNotFoundException("Brand with slug '" + slug + "'"));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
         return brandMapper.toResponse(brand);
     }
 
@@ -66,14 +66,7 @@ public class BrandServiceImpl implements BrandService {
             throw new ResourceAlreadyExistsException("Brand with slug '" + request.getSlug() + "'");
         }
 
-        brand.setName(request.getName());
-        brand.setSlug(request.getSlug());
-        brand.setDescription(request.getDescription());
-        brand.setLogoUrl(request.getLogoUrl());
-
-        if (request.getIsActive() != null) {
-            brand.setIsActive(request.getIsActive());
-        }
+        brandMapper.updateFromRequest(request, brand);
 
         Brand saved = brandRepository.save(brand);
         return brandMapper.toResponse(saved);
@@ -88,6 +81,6 @@ public class BrandServiceImpl implements BrandService {
 
     private Brand findBrandById(Long id) {
         return brandRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Brand with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
     }
 }

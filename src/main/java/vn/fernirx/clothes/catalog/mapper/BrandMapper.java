@@ -1,35 +1,27 @@
 package vn.fernirx.clothes.catalog.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import vn.fernirx.clothes.catalog.dto.request.BrandRequest;
 import vn.fernirx.clothes.catalog.dto.response.BrandResponse;
 import vn.fernirx.clothes.catalog.entity.Brand;
 
-@Component
-public class BrandMapper {
+@Mapper(componentModel = "spring")
+public interface BrandMapper {
 
-    public BrandResponse toResponse(Brand brand) {
-        if (brand == null) return null;
-        return new BrandResponse(
-                brand.getId(),
-                brand.getName(),
-                brand.getSlug(),
-                brand.getDescription(),
-                brand.getLogoUrl(),
-                brand.getIsActive(),
-                brand.getCreatedAt(),
-                brand.getUpdatedAt()
-        );
-    }
+    BrandResponse toResponse(Brand brand);
 
-    public Brand toEntity(BrandRequest request) {
-        if (request == null) return null;
-        Brand brand = new Brand();
-        brand.setName(request.getName());
-        brand.setSlug(request.getSlug());
-        brand.setDescription(request.getDescription());
-        brand.setLogoUrl(request.getLogoUrl());
-        brand.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
-        return brand;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", defaultExpression = "java(Boolean.TRUE)")
+    Brand toEntity(BrandRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isActive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(BrandRequest request, @MappingTarget Brand brand);
 }

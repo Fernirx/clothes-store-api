@@ -66,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new ResourceNotFoundException("Brand with id " + request.getBrandId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
 
         Product product = productMapper.toEntity(request);
         product.setBrand(brand);
@@ -90,23 +90,10 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new ResourceNotFoundException("Brand with id " + request.getBrandId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
 
         product.setBrand(brand);
-        product.setCode(request.getCode());
-        product.setSlug(request.getSlug());
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setGender(request.getGender());
-        product.setMaterial(request.getMaterial());
-        product.setOriginCountry(request.getOriginCountry());
-        product.setBasePrice(request.getBasePrice());
-        product.setOriginalPrice(request.getOriginalPrice());
-        product.setCostPrice(request.getCostPrice());
-
-        if (request.getIsNew() != null) product.setIsNew(request.getIsNew());
-        if (request.getIsOnSale() != null) product.setIsOnSale(request.getIsOnSale());
-        if (request.getIsActive() != null) product.setIsActive(request.getIsActive());
+        productMapper.updateFromRequest(request, product);
 
         if (request.getCategoryIds() != null) {
             Set<Category> categories = resolveCategories(request.getCategoryIds());
@@ -126,14 +113,14 @@ public class ProductServiceImpl implements ProductService {
 
     private Product findProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
     }
 
     private Set<Category> resolveCategories(Set<Long> categoryIds) {
         Set<Category> categories = new HashSet<>();
         for (Long categoryId : categoryIds) {
             Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category with id " + categoryId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category"));
             categories.add(category);
         }
         return categories;

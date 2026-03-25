@@ -1,37 +1,34 @@
 package vn.fernirx.clothes.catalog.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import vn.fernirx.clothes.catalog.dto.request.CategoryRequest;
 import vn.fernirx.clothes.catalog.dto.response.CategoryResponse;
 import vn.fernirx.clothes.catalog.entity.Category;
 
-@Component
-public class CategoryMapper {
+@Mapper(componentModel = "spring")
+public interface CategoryMapper {
 
-    public CategoryResponse toResponse(Category category) {
-        if (category == null) return null;
-        return new CategoryResponse(
-                category.getId(),
-                category.getName(),
-                category.getSlug(),
-                category.getDescription(),
-                category.getParent() != null ? category.getParent().getId() : null,
-                category.getDisplayOrder(),
-                category.getIsActive(),
-                category.getCreatedAt(),
-                category.getUpdatedAt()
-        );
-    }
+    @Mapping(source = "parent.id", target = "parentId")
+    CategoryResponse toResponse(Category category);
 
-    public Category toEntity(CategoryRequest request) {
-        if (request == null) return null;
-        Category category = new Category();
-        category.setName(request.getName());
-        category.setSlug(request.getSlug());
-        category.setDescription(request.getDescription());
-        category.setDisplayOrder(request.getDisplayOrder() != null ? request.getDisplayOrder() : 0);
-        category.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
-        // parent is set by the service
-        return category;
-    }
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "children", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "displayOrder", defaultValue = "0")
+    @Mapping(target = "isActive", defaultExpression = "java(Boolean.TRUE)")
+    Category toEntity(CategoryRequest request);
+
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "children", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "displayOrder", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "isActive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(CategoryRequest request, @MappingTarget Category category);
 }

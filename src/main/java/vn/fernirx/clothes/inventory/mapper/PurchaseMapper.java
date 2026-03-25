@@ -1,57 +1,39 @@
 package vn.fernirx.clothes.inventory.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import vn.fernirx.clothes.inventory.dto.request.PurchaseRequest;
 import vn.fernirx.clothes.inventory.dto.response.PurchaseResponse;
 import vn.fernirx.clothes.inventory.entity.Purchase;
 import vn.fernirx.clothes.inventory.enums.PaymentStatus;
 import vn.fernirx.clothes.inventory.enums.PurchaseStatus;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring", uses = {PurchaseItemMapper.class})
+public interface PurchaseMapper {
 
-@Component
-@RequiredArgsConstructor
-public class PurchaseMapper {
+    @Mapping(source = "supplier.id", target = "supplierId")
+    @Mapping(source = "supplier.name", target = "supplierName")
+    PurchaseResponse toResponse(Purchase purchase);
 
-    private final PurchaseItemMapper purchaseItemMapper;
+    @Mapping(target = "supplier", ignore = true)
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "totalCost", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "paymentStatus", defaultExpression = "java(PaymentStatus.UNPAID)")
+    @Mapping(target = "status", defaultExpression = "java(PurchaseStatus.DRAFT)")
+    Purchase toEntity(PurchaseRequest request);
 
-    public PurchaseResponse toResponse(Purchase purchase) {
-        if (purchase == null) return null;
-        return new PurchaseResponse(
-                purchase.getId(),
-                purchase.getSupplier() != null ? purchase.getSupplier().getId() : null,
-                purchase.getSupplier() != null ? purchase.getSupplier().getName() : null,
-                purchase.getPurchaseCode(),
-                purchase.getTotalCost(),
-                purchase.getPaymentStatus(),
-                purchase.getStatus(),
-                purchase.getNotes(),
-                purchase.getItems() != null
-                        ? purchase.getItems().stream()
-                                .map(purchaseItemMapper::toResponse)
-                                .collect(Collectors.toList())
-                        : Collections.emptyList(),
-                purchase.getCreatedAt(),
-                purchase.getUpdatedAt()
-        );
-    }
-
-    public Purchase toEntity(PurchaseRequest request) {
-        if (request == null) return null;
-        Purchase purchase = new Purchase();
-        purchase.setPurchaseCode(request.getPurchaseCode());
-        purchase.setNotes(request.getNotes());
-        purchase.setPaymentStatus(request.getPaymentStatus() != null
-                ? request.getPaymentStatus()
-                : PaymentStatus.UNPAID);
-        purchase.setStatus(request.getStatus() != null
-                ? request.getStatus()
-                : PurchaseStatus.DRAFT);
-        purchase.setTotalCost(BigDecimal.ZERO);
-        // supplier is set by the service
-        return purchase;
-    }
+    @Mapping(target = "supplier", ignore = true)
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "totalCost", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "paymentStatus", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "status", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(PurchaseRequest request, @MappingTarget Purchase purchase);
 }

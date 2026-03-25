@@ -1,33 +1,23 @@
 package vn.fernirx.clothes.inventory.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import vn.fernirx.clothes.inventory.dto.request.StockAdjustmentItemRequest;
 import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentItemResponse;
 import vn.fernirx.clothes.inventory.entity.StockAdjustmentItem;
 
-@Component
-public class StockAdjustmentItemMapper {
+@Mapper(componentModel = "spring")
+public interface StockAdjustmentItemMapper {
 
-    public StockAdjustmentItemResponse toResponse(StockAdjustmentItem item) {
-        if (item == null) return null;
-        return new StockAdjustmentItemResponse(
-                item.getId(),
-                item.getAdjustment() != null ? item.getAdjustment().getId() : null,
-                item.getVariant() != null ? item.getVariant().getId() : null,
-                item.getVariant() != null ? item.getVariant().getSku() : null,
-                item.getQuantityBefore(),
-                item.getQuantityAfter(),
-                item.getCreatedAt(),
-                item.getUpdatedAt()
-        );
-    }
+    @Mapping(source = "adjustment.id", target = "adjustmentId")
+    @Mapping(source = "variant.id", target = "variantId")
+    @Mapping(source = "variant.sku", target = "variantSku")
+    StockAdjustmentItemResponse toResponse(StockAdjustmentItem item);
 
-    public StockAdjustmentItem toEntity(StockAdjustmentItemRequest request) {
-        if (request == null) return null;
-        StockAdjustmentItem item = new StockAdjustmentItem();
-        item.setQuantityBefore(request.getQuantityBefore());
-        item.setQuantityAfter(request.getQuantityAfter());
-        // adjustment and variant are set by the service
-        return item;
-    }
+    @Mapping(target = "adjustment", ignore = true)
+    @Mapping(target = "variant", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    StockAdjustmentItem toEntity(StockAdjustmentItemRequest request);
 }

@@ -17,6 +17,7 @@ import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentResponse;
 import vn.fernirx.clothes.inventory.entity.StockAdjustment;
 import vn.fernirx.clothes.inventory.entity.StockAdjustmentItem;
 import vn.fernirx.clothes.inventory.enums.AdjustmentStatus;
+import vn.fernirx.clothes.inventory.mapper.StockAdjustmentItemMapper;
 import vn.fernirx.clothes.inventory.mapper.StockAdjustmentMapper;
 import vn.fernirx.clothes.inventory.repository.StockAdjustmentRepository;
 import vn.fernirx.clothes.inventory.service.StockAdjustmentService;
@@ -32,6 +33,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     private final StockAdjustmentRepository adjustmentRepository;
     private final ProductVariantRepository productVariantRepository;
     private final StockAdjustmentMapper adjustmentMapper;
+    private final StockAdjustmentItemMapper stockAdjustmentItemMapper;
 
     @Override
     public PageResponse<StockAdjustmentResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
@@ -44,7 +46,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     @Override
     public StockAdjustmentResponse getById(Long id) {
         StockAdjustment adjustment = adjustmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
         return adjustmentMapper.toResponse(adjustment);
     }
 
@@ -61,13 +63,9 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     @Transactional
     public StockAdjustmentResponse update(Long id, StockAdjustmentRequest request) {
         StockAdjustment adjustment = adjustmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
 
-        adjustment.setReason(request.getReason());
-        adjustment.setNotes(request.getNotes());
-        if (request.getStatus() != null) {
-            adjustment.setStatus(request.getStatus());
-        }
+        adjustmentMapper.updateFromRequest(request, adjustment);
 
         adjustment.getItems().clear();
         List<StockAdjustmentItem> items = buildItems(request.getItems(), adjustment);
@@ -80,7 +78,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     @Transactional
     public void delete(Long id) {
         StockAdjustment adjustment = adjustmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
         if (adjustment.getStatus() != AdjustmentStatus.DRAFT) {
             throw new ResourceInUseException("StockAdjustment with id " + id + " (only DRAFT adjustments can be deleted)");
         }
@@ -95,12 +93,10 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
         }
         for (StockAdjustmentItemRequest itemRequest : itemRequests) {
             ProductVariant variant = productVariantRepository.findById(itemRequest.getVariantId())
-                    .orElseThrow(() -> new ResourceNotFoundException("ProductVariant with id " + itemRequest.getVariantId()));
-            StockAdjustmentItem item = new StockAdjustmentItem();
+                    .orElseThrow(() -> new ResourceNotFoundException("ProductVariant"));
+            StockAdjustmentItem item = stockAdjustmentItemMapper.toEntity(itemRequest);
             item.setAdjustment(adjustment);
             item.setVariant(variant);
-            item.setQuantityBefore(itemRequest.getQuantityBefore());
-            item.setQuantityAfter(itemRequest.getQuantityAfter());
             items.add(item);
         }
         return items;

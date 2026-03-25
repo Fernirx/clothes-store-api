@@ -25,11 +25,11 @@ spring:
   # -- Database (MySQL) --
   datasource:
     # JDBC connection URL — format: jdbc:mysql://host:port/database
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:clothes_db}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:33 07}/${DB_NAME:clothes_db}
 
     # Thông tin đăng nhập — nên truyền qua environment variable ở production
-    username: ${DB_USERNAME:clothes_user}
-    password: ${DB_PASSWORD:password}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
 
     # JDBC driver cho MySQL 8+
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -37,7 +37,7 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
     @Override
     public PageResponse<InventoryTransactionResponse> getByVariantId(Long variantId, Integer page, Integer size) {
         if (!productVariantRepository.existsById(variantId)) {
-            throw new ResourceNotFoundException("ProductVariant with id " + variantId);
+            throw new ResourceNotFoundException("ProductVariant");
         }
         Pageable pageable = PaginationUtil.createPageable(page, size, "createdAt", "desc");
         Page<InventoryTransactionResponse> result =
@@ -49,7 +49,7 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
     @Override
     public InventoryTransactionResponse getById(Long id) {
         InventoryTransaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("InventoryTransaction with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("InventoryTransaction"));
         return transactionMapper.toResponse(transaction);
     }
 
@@ -57,17 +57,10 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
     @Transactional
     public InventoryTransactionResponse create(InventoryTransactionRequest request) {
         ProductVariant variant = productVariantRepository.findById(request.getVariantId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant with id " + request.getVariantId()));
+                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant"));
 
-        InventoryTransaction transaction = new InventoryTransaction();
+        InventoryTransaction transaction = transactionMapper.toEntity(request);
         transaction.setVariant(variant);
-        transaction.setType(request.getType());
-        transaction.setQuantity(request.getQuantity());
-        transaction.setOldStock(request.getOldStock());
-        transaction.setNewStock(request.getNewStock());
-        transaction.setReferenceType(request.getReferenceType());
-        transaction.setReferenceId(request.getReferenceId());
-        transaction.setNotes(request.getNotes());
 
         return transactionMapper.toResponse(transactionRepository.save(transaction));
     }

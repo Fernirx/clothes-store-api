@@ -1,33 +1,30 @@
 package vn.fernirx.clothes.catalog.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import vn.fernirx.clothes.catalog.dto.request.ProductImageRequest;
 import vn.fernirx.clothes.catalog.dto.response.ProductImageResponse;
 import vn.fernirx.clothes.catalog.entity.ProductImage;
 
-@Component
-public class ProductImageMapper {
+@Mapper(componentModel = "spring")
+public interface ProductImageMapper {
 
-    public ProductImageResponse toResponse(ProductImage image) {
-        if (image == null) return null;
-        return new ProductImageResponse(
-                image.getId(),
-                image.getProduct() != null ? image.getProduct().getId() : null,
-                image.getColor(),
-                image.getImageUrl(),
-                image.getIsPrimary(),
-                image.getCreatedAt(),
-                image.getUpdatedAt()
-        );
-    }
+    @Mapping(source = "product.id", target = "productId")
+    ProductImageResponse toResponse(ProductImage image);
 
-    public ProductImage toEntity(ProductImageRequest request) {
-        if (request == null) return null;
-        ProductImage image = new ProductImage();
-        image.setColor(request.getColor());
-        image.setImageUrl(request.getImageUrl());
-        image.setIsPrimary(request.getIsPrimary() != null ? request.getIsPrimary() : false);
-        // product is set by the service
-        return image;
-    }
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isPrimary", defaultExpression = "java(Boolean.FALSE)")
+    ProductImage toEntity(ProductImageRequest request);
+
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "isPrimary", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(ProductImageRequest request, @MappingTarget ProductImage image);
 }

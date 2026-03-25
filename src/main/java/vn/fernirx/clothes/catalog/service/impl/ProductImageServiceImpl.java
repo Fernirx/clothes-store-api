@@ -28,7 +28,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Override
     public List<ProductImageResponse> getByProductId(Long productId) {
         if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product with id " + productId);
+            throw new ResourceNotFoundException("Product");
         }
         return productImageRepository.findByProductId(productId).stream()
                 .map(productImageMapper::toResponse)
@@ -45,7 +45,7 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Transactional
     public ProductImageResponse create(ProductImageRequest request) {
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
 
         ProductImage image = productImageMapper.toEntity(request);
         image.setProduct(product);
@@ -60,15 +60,10 @@ public class ProductImageServiceImpl implements ProductImageService {
         ProductImage image = findImageById(id);
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
 
         image.setProduct(product);
-        image.setColor(request.getColor());
-        image.setImageUrl(request.getImageUrl());
-
-        if (request.getIsPrimary() != null) {
-            image.setIsPrimary(request.getIsPrimary());
-        }
+        productImageMapper.updateFromRequest(request, image);
 
         ProductImage saved = productImageRepository.save(image);
         return productImageMapper.toResponse(saved);
@@ -83,6 +78,6 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     private ProductImage findImageById(Long id) {
         return productImageRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ProductImage with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ProductImage"));
     }
 }

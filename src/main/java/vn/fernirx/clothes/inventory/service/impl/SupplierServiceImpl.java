@@ -35,7 +35,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public SupplierResponse getById(Long id) {
         Supplier supplier = supplierRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier"));
         return supplierMapper.toResponse(supplier);
     }
 
@@ -56,21 +56,14 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     public SupplierResponse update(Long id, SupplierRequest request) {
         Supplier supplier = supplierRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier"));
         if (supplierRepository.existsByNameAndIdNot(request.getName(), id)) {
             throw new ResourceAlreadyExistsException("Supplier with name '" + request.getName() + "'");
         }
         if (supplierRepository.existsByCodeAndIdNot(request.getCode(), id)) {
             throw new ResourceAlreadyExistsException("Supplier with code '" + request.getCode() + "'");
         }
-        supplier.setName(request.getName());
-        supplier.setCode(request.getCode());
-        supplier.setEmail(request.getEmail());
-        supplier.setPhone(request.getPhone());
-        supplier.setAddress(request.getAddress());
-        if (request.getIsActive() != null) {
-            supplier.setIsActive(request.getIsActive());
-        }
+        supplierMapper.updateFromRequest(request, supplier);
         return supplierMapper.toResponse(supplierRepository.save(supplier));
     }
 
@@ -78,7 +71,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Transactional
     public void delete(Long id) {
         if (!supplierRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Supplier with id " + id);
+            throw new ResourceNotFoundException("Supplier");
         }
         supplierRepository.deleteById(id);
     }

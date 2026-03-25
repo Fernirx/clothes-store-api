@@ -29,7 +29,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Override
     public List<ProductVariantResponse> getByProductId(Long productId) {
         if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product with id " + productId);
+            throw new ResourceNotFoundException("Product");
         }
         return productVariantRepository.findByProductId(productId).stream()
                 .map(productVariantMapper::toResponse)
@@ -50,7 +50,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
 
         ProductVariant variant = productVariantMapper.toEntity(request);
         variant.setProduct(product);
@@ -69,17 +69,10 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         }
 
         Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product with id " + request.getProductId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
 
         variant.setProduct(product);
-        variant.setSize(request.getSize());
-        variant.setColor(request.getColor());
-        variant.setColorHex(request.getColorHex());
-        variant.setPrice(request.getPrice());
-        variant.setSku(request.getSku());
-
-        if (request.getStockQuantity() != null) variant.setStockQuantity(request.getStockQuantity());
-        if (request.getMinStockLevel() != null) variant.setMinStockLevel(request.getMinStockLevel());
+        productVariantMapper.updateFromRequest(request, variant);
 
         ProductVariant saved = productVariantRepository.save(variant);
         return productVariantMapper.toResponse(saved);
@@ -94,6 +87,6 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     private ProductVariant findVariantById(Long id) {
         return productVariantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant"));
     }
 }

@@ -1,47 +1,32 @@
 package vn.fernirx.clothes.inventory.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import vn.fernirx.clothes.inventory.dto.request.StockAdjustmentRequest;
 import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentResponse;
 import vn.fernirx.clothes.inventory.entity.StockAdjustment;
 import vn.fernirx.clothes.inventory.enums.AdjustmentStatus;
 
-import java.util.Collections;
-import java.util.stream.Collectors;
+@Mapper(componentModel = "spring", uses = {StockAdjustmentItemMapper.class})
+public interface StockAdjustmentMapper {
 
-@Component
-@RequiredArgsConstructor
-public class StockAdjustmentMapper {
+    StockAdjustmentResponse toResponse(StockAdjustment adjustment);
 
-    private final StockAdjustmentItemMapper stockAdjustmentItemMapper;
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", defaultExpression = "java(AdjustmentStatus.DRAFT)")
+    StockAdjustment toEntity(StockAdjustmentRequest request);
 
-    public StockAdjustmentResponse toResponse(StockAdjustment adjustment) {
-        if (adjustment == null) return null;
-        return new StockAdjustmentResponse(
-                adjustment.getId(),
-                adjustment.getReason(),
-                adjustment.getNotes(),
-                adjustment.getStatus(),
-                adjustment.getCreatedBy(),
-                adjustment.getItems() != null
-                        ? adjustment.getItems().stream()
-                                .map(stockAdjustmentItemMapper::toResponse)
-                                .collect(Collectors.toList())
-                        : Collections.emptyList(),
-                adjustment.getCreatedAt(),
-                adjustment.getUpdatedAt()
-        );
-    }
-
-    public StockAdjustment toEntity(StockAdjustmentRequest request) {
-        if (request == null) return null;
-        StockAdjustment adjustment = new StockAdjustment();
-        adjustment.setReason(request.getReason());
-        adjustment.setNotes(request.getNotes());
-        adjustment.setStatus(request.getStatus() != null
-                ? request.getStatus()
-                : AdjustmentStatus.DRAFT);
-        return adjustment;
-    }
+    @Mapping(target = "items", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateFromRequest(StockAdjustmentRequest request, @MappingTarget StockAdjustment adjustment);
 }
