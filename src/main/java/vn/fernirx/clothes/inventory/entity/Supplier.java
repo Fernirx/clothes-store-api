@@ -25,8 +25,14 @@ public class Supplier extends BaseEntity {
     @Column(name = "phone")
     private String phone;
 
+    @Column(name = "contact_person")
+    private String contactPerson;
+
     @Column(name = "address")
     private String address;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;

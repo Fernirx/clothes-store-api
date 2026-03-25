@@ -1,7 +1,7 @@
 package vn.fernirx.clothes.catalog.dto.response;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public record ProductVariantResponse(
         Long id,
@@ -13,7 +13,9 @@ public record ProductVariantResponse(
         String sku,
         Integer stockQuantity,
         Integer minStockLevel,
-        Instant createdAt,
-        Instant updatedAt
+        Integer displayOrder,
+        Boolean isActive,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

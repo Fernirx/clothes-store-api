@@ -17,14 +17,12 @@ public interface ProductImageMapper {
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isPrimary", defaultExpression = "java(Boolean.FALSE)")
     ProductImage toEntity(ProductImageRequest request);
 
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isPrimary", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateFromRequest(ProductImageRequest request, @MappingTarget ProductImage image);
 }

@@ -3,7 +3,7 @@ package vn.fernirx.clothes.inventory.dto.response;
 import vn.fernirx.clothes.inventory.enums.QualityStatus;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public record PurchaseItemResponse(
         Long id,
@@ -13,7 +13,13 @@ public record PurchaseItemResponse(
         int quantityOrdered,
         int quantityReceived,
         BigDecimal unitCost,
+        BigDecimal lineTotal,
         QualityStatus qualityStatus,
-        Instant createdAt,
-        Instant updatedAt
+        int defectiveQty,
+        String defectReason,
+        Boolean isReceived,
+        LocalDateTime receivedDate,
+        String notes,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {}

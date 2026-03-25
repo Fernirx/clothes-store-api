@@ -40,6 +40,12 @@ public class ProductVariant extends BaseEntity {
     @Column(name = "stock_quantity")
     private Integer stockQuantity = 0;
 
-    @Column(name = "min_stock_level")
+    @Column(name = "min_stock_level", nullable = false)
     private Integer minStockLevel = 5;
+
+    @Column(name = "display_order", nullable = false)
+    private Integer displayOrder = 0;
+
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
 }

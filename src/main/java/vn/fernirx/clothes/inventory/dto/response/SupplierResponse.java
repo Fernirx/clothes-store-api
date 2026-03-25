@@ -1,6 +1,6 @@
 package vn.fernirx.clothes.inventory.dto.response;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public record SupplierResponse(
         Long id,
@@ -8,8 +8,10 @@ public record SupplierResponse(
         String code,
         String email,
         String phone,
+        String contactPerson,
         String address,
+        String notes,
         Boolean isActive,
-        Instant createdAt,
-        Instant updatedAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {}

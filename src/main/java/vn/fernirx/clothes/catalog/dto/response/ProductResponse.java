@@ -3,7 +3,7 @@ package vn.fernirx.clothes.catalog.dto.response;
 import vn.fernirx.clothes.catalog.enums.ProductGender;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 public record ProductResponse(
@@ -26,7 +26,7 @@ public record ProductResponse(
         Integer soldCount,
         Integer viewCount,
         Set<Long> categoryIds,
-        Instant createdAt,
-        Instant updatedAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }

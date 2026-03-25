@@ -18,6 +18,5 @@ public interface StockAdjustmentItemMapper {
     @Mapping(target = "variant", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
     StockAdjustmentItem toEntity(StockAdjustmentItemRequest request);
 }
