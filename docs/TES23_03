@@ -1,0 +1,1050 @@
+-- MySQL dump 10.13  Distrib 8.0.41, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: clothes_db
+-- ------------------------------------------------------
+-- Server version	9.5.0
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
+
+--
+-- GTID state at the beginning of the backup 
+--
+
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '0a8cc74b-dc99-11f0-9c09-088fc363363c:1-236';
+
+--
+-- Table structure for table `brands`
+--
+
+DROP TABLE IF EXISTS `brands`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `brands` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `slug` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_520_ci,
+  `logo_url` varchar(500) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `logo_public_id` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  UNIQUE KEY `slug_UNIQUE` (`slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `brands`
+--
+
+LOCK TABLES `brands` WRITE;
+/*!40000 ALTER TABLE `brands` DISABLE KEYS */;
+INSERT INTO `brands` VALUES (1,'Gucci','gucci','Thương hiệu thời trang xa xỉ người Ý, thành lập năm 1921 tại Florence.','https://cdn.example.com/brands/gucci.png',NULL,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(2,'Louis Vuitton','louis-vuitton','Thương hiệu thời trang và hàng da cao cấp người Pháp, thành lập năm 1854.','https://cdn.example.com/brands/louis-vuitton.png',NULL,1,'2026-03-24 00:01:39','2026-03-24 00:01:39');
+/*!40000 ALTER TABLE `brands` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `cart_items`
+--
+
+DROP TABLE IF EXISTS `cart_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cart_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `cart_id` bigint unsigned NOT NULL,
+  `variant_id` bigint unsigned NOT NULL,
+  `quantity` int NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `cart_variant_UNIQUE` (`cart_id`,`variant_id`),
+  KEY `fk_cart_items_variant` (`variant_id`),
+  CONSTRAINT `fk_cart_items_cart` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_cart_items_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `cart_items`
+--
+
+LOCK TABLES `cart_items` WRITE;
+/*!40000 ALTER TABLE `cart_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `cart_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `carts`
+--
+
+DROP TABLE IF EXISTS `carts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `carts` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `guest_token` varchar(64) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_cart_user_UNIQUE` (`user_id`),
+  UNIQUE KEY `user_cart_guest_UNIQUE` (`guest_token`),
+  CONSTRAINT `fk_carts_guest_token` FOREIGN KEY (`guest_token`) REFERENCES `guest_sessions` (`guest_token`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_carts_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `carts`
+--
+
+LOCK TABLES `carts` WRITE;
+/*!40000 ALTER TABLE `carts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `carts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `categories`
+--
+
+DROP TABLE IF EXISTS `categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `categories` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint unsigned DEFAULT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `slug` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_520_ci,
+  `display_order` int NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  UNIQUE KEY `slug_UNIQUE` (`slug`),
+  KEY `fk_categories_parent` (`parent_id`),
+  CONSTRAINT `fk_categories_parent` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `categories`
+--
+
+LOCK TABLES `categories` WRITE;
+/*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+INSERT INTO `categories` VALUES (1,NULL,'Thời Trang Nam','thoi-trang-nam',NULL,1,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(2,NULL,'Thời Trang Nữ','thoi-trang-nu',NULL,2,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(3,1,'Áo Nam','ao-nam',NULL,1,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(4,1,'Quần Nam','quan-nam',NULL,2,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(5,2,'Áo Nữ','ao-nu',NULL,1,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(6,2,'Váy & Đầm','vay-dam',NULL,2,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(7,NULL,'Phụ Kiện','phu-kien',NULL,3,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(8,7,'Thắt Lưng','that-lung',NULL,1,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(9,7,'Khăn Quàng','khan-quang',NULL,2,1,'2026-03-24 00:01:39','2026-03-24 00:01:39'),(10,NULL,'Giày Dép','giay-dep',NULL,4,1,'2026-03-24 00:01:39','2026-03-24 00:01:39');
+/*!40000 ALTER TABLE `categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `coupon_usage`
+--
+
+DROP TABLE IF EXISTS `coupon_usage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `coupon_usage` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `coupon_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `order_id` bigint unsigned NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `phone` varchar(15) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `discount_amount` decimal(15,2) NOT NULL,
+  `used_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_UNIQUE` (`order_id`),
+  KEY `fk_coupon_usage_coupon` (`coupon_id`),
+  KEY `fk_coupon_usage_user` (`user_id`),
+  CONSTRAINT `fk_coupon_usage_coupon` FOREIGN KEY (`coupon_id`) REFERENCES `coupons` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_coupon_usage_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_coupon_usage_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupon_usage`
+--
+
+LOCK TABLES `coupon_usage` WRITE;
+/*!40000 ALTER TABLE `coupon_usage` DISABLE KEYS */;
+/*!40000 ALTER TABLE `coupon_usage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `coupons`
+--
+
+DROP TABLE IF EXISTS `coupons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `coupons` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_520_ci,
+  `discount_type` enum('PERCENTAGE','FIXED_AMOUNT') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `discount_value` decimal(15,2) NOT NULL,
+  `min_order_amount` decimal(15,2) DEFAULT NULL,
+  `max_discount_amount` decimal(15,2) DEFAULT NULL,
+  `usage_limit` int DEFAULT NULL,
+  `used_count` int NOT NULL DEFAULT '0',
+  `user_usage_limit` int DEFAULT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_UNIQUE` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `coupons`
+--
+
+LOCK TABLES `coupons` WRITE;
+/*!40000 ALTER TABLE `coupons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `coupons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `guest_sessions`
+--
+
+DROP TABLE IF EXISTS `guest_sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `guest_sessions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `guest_token` varchar(64) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_active` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `expires_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `guest_token_UNIQUE` (`guest_token`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `guest_sessions`
+--
+
+LOCK TABLES `guest_sessions` WRITE;
+/*!40000 ALTER TABLE `guest_sessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `guest_sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `inventory_transactions`
+--
+
+DROP TABLE IF EXISTS `inventory_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inventory_transactions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `variant_id` bigint unsigned NOT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `type` enum('IN','OUT','ADJUST') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `quantity` int NOT NULL,
+  `old_stock` int NOT NULL,
+  `new_stock` int NOT NULL,
+  `reference_type` enum('ORDER','PURCHASE_ITEM','RETURN','ADJUSTMENT') COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `reference_id` bigint unsigned DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_520_ci,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_inventory_variant` (`variant_id`),
+  KEY `fk_inventory_user` (`created_by`),
+  CONSTRAINT `fk_inventory_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_inventory_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `inventory_transactions`
+--
+
+LOCK TABLES `inventory_transactions` WRITE;
+/*!40000 ALTER TABLE `inventory_transactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `inventory_transactions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `notification_recipients`
+--
+
+DROP TABLE IF EXISTS `notification_recipients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notification_recipients` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `notification_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT '0',
+  `read_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_notification_UNIQUE` (`user_id`,`notification_id`),
+  KEY `fk_recipients_notification` (`notification_id`),
+  CONSTRAINT `fk_recipients_notification` FOREIGN KEY (`notification_id`) REFERENCES `notifications` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_recipients_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notification_recipients`
+--
+
+LOCK TABLES `notification_recipients` WRITE;
+/*!40000 ALTER TABLE `notification_recipients` DISABLE KEYS */;
+/*!40000 ALTER TABLE `notification_recipients` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `notifications`
+--
+
+DROP TABLE IF EXISTS `notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `notifications` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `target_type` enum('USER','ADMIN','ALL') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `target_user_id` bigint unsigned DEFAULT NULL,
+  `type` enum('ORDER','PAYMENT','PROMOTION','SYSTEM','REVIEW','INVENTORY') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `link` varchar(500) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_notifications_target_user` (`target_user_id`),
+  CONSTRAINT `fk_notifications_target_user` FOREIGN KEY (`target_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `notifications`
+--
+
+LOCK TABLES `notifications` WRITE;
+/*!40000 ALTER TABLE `notifications` DISABLE KEYS */;
+/*!40000 ALTER TABLE `notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order_items`
+--
+
+DROP TABLE IF EXISTS `order_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` bigint unsigned NOT NULL,
+  `variant_id` bigint unsigned NOT NULL,
+  `product_code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `product_name` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `variant_sku` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `variant_size` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `variant_color` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `quantity` int NOT NULL,
+  `unit_price` decimal(15,2) NOT NULL,
+  `discount_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `subtotal` decimal(15,2) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_order_items_order` (`order_id`),
+  KEY `fk_order_items_variant` (`variant_id`),
+  CONSTRAINT `fk_order_items_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_order_items_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_items`
+--
+
+LOCK TABLES `order_items` WRITE;
+/*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `order_status_history`
+--
+
+DROP TABLE IF EXISTS `order_status_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_status_history` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` bigint unsigned NOT NULL,
+  `changed_by` bigint unsigned DEFAULT NULL,
+  `old_status` enum('PENDING','CONFIRMED','PROCESSING','SHIPPING','DELIVERED','CANCELLED','REFUNDED') COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `new_status` enum('PENDING','CONFIRMED','PROCESSING','SHIPPING','DELIVERED','CANCELLED','REFUNDED') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_status_history_order` (`order_id`),
+  KEY `fk_status_history_user` (`changed_by`),
+  CONSTRAINT `fk_status_history_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_status_history_user` FOREIGN KEY (`changed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `order_status_history`
+--
+
+LOCK TABLES `order_status_history` WRITE;
+/*!40000 ALTER TABLE `order_status_history` DISABLE KEYS */;
+/*!40000 ALTER TABLE `order_status_history` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `orders`
+--
+
+DROP TABLE IF EXISTS `orders`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `orders` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `guest_token` varchar(64) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `status` enum('PENDING','CONFIRMED','PROCESSING','SHIPPING','DELIVERED','CANCELLED','REFUNDED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'PENDING',
+  `payment_status` enum('UNPAID','PAID','FAILED','REFUNDED','CANCELLED','EXPIRED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'UNPAID',
+  `payment_method` enum('VNPAY','COD') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `recipient_name` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `recipient_phone` varchar(15) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `shipping_street` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `shipping_ward` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `shipping_district` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `shipping_province` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `subtotal` decimal(15,2) NOT NULL,
+  `shipping_fee` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `discount_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `total_amount` decimal(15,2) NOT NULL,
+  `coupon_code` varchar(50) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `note` text COLLATE utf8mb4_unicode_520_ci,
+  `admin_note` text COLLATE utf8mb4_unicode_520_ci,
+  `cancelled_reason` text COLLATE utf8mb4_unicode_520_ci,
+  `cancelled_by` enum('CUSTOMER','ADMIN','SYSTEM') COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `cancelled_at` datetime DEFAULT NULL,
+  `confirmed_at` datetime DEFAULT NULL,
+  `estimated_delivery_date` date DEFAULT NULL,
+  `tracking_number` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `delivered_at` datetime DEFAULT NULL,
+  `expired_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_UNIQUE` (`code`),
+  KEY `fk_orders_user` (`user_id`),
+  KEY `fk_orders_guest_token` (`guest_token`),
+  CONSTRAINT `fk_orders_guest_token` FOREIGN KEY (`guest_token`) REFERENCES `guest_sessions` (`guest_token`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `orders`
+--
+
+LOCK TABLES `orders` WRITE;
+/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `payments`
+--
+
+DROP TABLE IF EXISTS `payments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` bigint unsigned NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `status` enum('PENDING','SUCCESS','FAILED','EXPIRED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'PENDING',
+  `transaction_id` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `response_code` varchar(10) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `response_message` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `paid_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_payments_order` (`order_id`),
+  CONSTRAINT `fk_payments_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `payments`
+--
+
+LOCK TABLES `payments` WRITE;
+/*!40000 ALTER TABLE `payments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `payments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_categories`
+--
+
+DROP TABLE IF EXISTS `product_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_categories` (
+  `product_id` bigint unsigned NOT NULL,
+  `category_id` bigint unsigned NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`product_id`,`category_id`),
+  KEY `fk_product_categories_category` (`category_id`),
+  CONSTRAINT `fk_product_categories_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_product_categories_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_categories`
+--
+
+LOCK TABLES `product_categories` WRITE;
+/*!40000 ALTER TABLE `product_categories` DISABLE KEYS */;
+INSERT INTO `product_categories` VALUES (1,1,'2026-03-24 00:07:27'),(1,3,'2026-03-24 00:07:27'),(2,1,'2026-03-24 00:07:27'),(2,4,'2026-03-24 00:07:27'),(3,1,'2026-03-24 00:07:27'),(3,3,'2026-03-24 00:07:27'),(4,7,'2026-03-24 00:07:27'),(4,8,'2026-03-24 00:07:27'),(5,2,'2026-03-24 00:07:27'),(5,6,'2026-03-24 00:07:27'),(6,3,'2026-03-24 00:07:27'),(6,5,'2026-03-24 00:07:27'),(7,1,'2026-03-24 00:07:27'),(7,4,'2026-03-24 00:07:27'),(8,2,'2026-03-24 00:07:27'),(8,5,'2026-03-24 00:07:27'),(9,7,'2026-03-24 00:07:27'),(9,9,'2026-03-24 00:07:27'),(10,1,'2026-03-24 00:07:27'),(10,2,'2026-03-24 00:07:27'),(10,10,'2026-03-24 00:07:27');
+/*!40000 ALTER TABLE `product_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_comments`
+--
+
+DROP TABLE IF EXISTS `product_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_comments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `parent_id` bigint unsigned DEFAULT NULL,
+  `content` text COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `is_approved` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_comments_product` (`product_id`),
+  KEY `fk_comments_user` (`user_id`),
+  KEY `fk_comments_parent` (`parent_id`),
+  CONSTRAINT `fk_comments_parent` FOREIGN KEY (`parent_id`) REFERENCES `product_comments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_comments_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_comments_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_comments`
+--
+
+LOCK TABLES `product_comments` WRITE;
+/*!40000 ALTER TABLE `product_comments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_comments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_images`
+--
+
+DROP TABLE IF EXISTS `product_images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_images` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` bigint unsigned NOT NULL,
+  `color` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `color_hex` varchar(7) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `image_url` varchar(500) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `image_public_id` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `is_primary` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_images_product` (`product_id`),
+  CONSTRAINT `fk_images_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_images`
+--
+
+LOCK TABLES `product_images` WRITE;
+/*!40000 ALTER TABLE `product_images` DISABLE KEYS */;
+INSERT INTO `product_images` VALUES (1,1,'Trắng',NULL,'https://cdn.example.com/products/gcc-001/white-front.jpg','public_id_gcc001_w1',1,'2026-03-24 00:07:27'),(2,1,'Trắng',NULL,'https://cdn.example.com/products/gcc-001/white-back.jpg','public_id_gcc001_w2',0,'2026-03-24 00:07:27'),(3,1,'Đen',NULL,'https://cdn.example.com/products/gcc-001/black-front.jpg','public_id_gcc001_b1',0,'2026-03-24 00:07:27'),(4,1,'Đen',NULL,'https://cdn.example.com/products/gcc-001/black-back.jpg','public_id_gcc001_b2',0,'2026-03-24 00:07:27'),(5,2,'Đen',NULL,'https://cdn.example.com/products/gcc-002/black-front.jpg','public_id_gcc002_b1',1,'2026-03-24 00:07:27'),(6,2,'Đen',NULL,'https://cdn.example.com/products/gcc-002/black-back.jpg','public_id_gcc002_b2',0,'2026-03-24 00:07:27'),(7,2,'Navy',NULL,'https://cdn.example.com/products/gcc-002/navy-front.jpg','public_id_gcc002_n1',0,'2026-03-24 00:07:27'),(8,3,'Nâu GG',NULL,'https://cdn.example.com/products/gcc-003/gg-front.jpg','public_id_gcc003_1',1,'2026-03-24 00:07:27'),(9,3,'Nâu GG',NULL,'https://cdn.example.com/products/gcc-003/gg-back.jpg','public_id_gcc003_2',0,'2026-03-24 00:07:27'),(10,3,'Nâu GG',NULL,'https://cdn.example.com/products/gcc-003/gg-detail.jpg','public_id_gcc003_3',0,'2026-03-24 00:07:27'),(11,4,'Đen',NULL,'https://cdn.example.com/products/gcc-004/black-front.jpg','public_id_gcc004_1',1,'2026-03-24 00:07:27'),(12,4,'Nâu',NULL,'https://cdn.example.com/products/gcc-004/brown-front.jpg','public_id_gcc004_2',0,'2026-03-24 00:07:27'),(13,5,'Hoa Đỏ',NULL,'https://cdn.example.com/products/gcc-005/red-floral-front.jpg','public_id_gcc005_1',1,'2026-03-24 00:07:27'),(14,5,'Hoa Đỏ',NULL,'https://cdn.example.com/products/gcc-005/red-floral-back.jpg','public_id_gcc005_2',0,'2026-03-24 00:07:27'),(15,5,'Hoa Xanh',NULL,'https://cdn.example.com/products/gcc-005/blue-floral-front.jpg','public_id_gcc005_3',0,'2026-03-24 00:07:27'),(16,6,'Đen',NULL,'https://cdn.example.com/products/lv-001/black-front.jpg','public_id_lv001_1',1,'2026-03-24 00:07:27'),(17,6,'Đen',NULL,'https://cdn.example.com/products/lv-001/black-back.jpg','public_id_lv001_2',0,'2026-03-24 00:07:27'),(18,6,'Trắng',NULL,'https://cdn.example.com/products/lv-001/white-front.jpg','public_id_lv001_3',0,'2026-03-24 00:07:27'),(19,7,'Xám Graphite',NULL,'https://cdn.example.com/products/lv-002/grey-front.jpg','public_id_lv002_1',1,'2026-03-24 00:07:27'),(20,7,'Xám Graphite',NULL,'https://cdn.example.com/products/lv-002/grey-back.jpg','public_id_lv002_2',0,'2026-03-24 00:07:27'),(21,7,'Đen',NULL,'https://cdn.example.com/products/lv-002/black-front.jpg','public_id_lv002_3',0,'2026-03-24 00:07:27'),(22,8,'Xanh Denim',NULL,'https://cdn.example.com/products/lv-003/denim-front.jpg','public_id_lv003_1',1,'2026-03-24 00:07:27'),(23,8,'Xanh Denim',NULL,'https://cdn.example.com/products/lv-003/denim-back.jpg','public_id_lv003_2',0,'2026-03-24 00:07:27'),(24,8,'Xanh Denim',NULL,'https://cdn.example.com/products/lv-003/denim-detail.jpg','public_id_lv003_3',0,'2026-03-24 00:07:27'),(25,9,'Nâu/Vàng',NULL,'https://cdn.example.com/products/lv-004/brown-gold.jpg','public_id_lv004_1',1,'2026-03-24 00:07:27'),(26,9,'Đen/Xám',NULL,'https://cdn.example.com/products/lv-004/black-grey.jpg','public_id_lv004_2',0,'2026-03-24 00:07:27'),(27,9,'Hồng/Hồng',NULL,'https://cdn.example.com/products/lv-004/pink.jpg','public_id_lv004_3',0,'2026-03-24 00:07:27'),(28,10,'Trắng/Nâu',NULL,'https://cdn.example.com/products/lv-005/white-brown-side.jpg','public_id_lv005_1',1,'2026-03-24 00:07:27'),(29,10,'Trắng/Nâu',NULL,'https://cdn.example.com/products/lv-005/white-brown-top.jpg','public_id_lv005_2',0,'2026-03-24 00:07:27'),(30,10,'Đen/Đen',NULL,'https://cdn.example.com/products/lv-005/black-side.jpg','public_id_lv005_3',0,'2026-03-24 00:07:27');
+/*!40000 ALTER TABLE `product_images` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_reviews`
+--
+
+DROP TABLE IF EXISTS `product_reviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_reviews` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `rating` tinyint unsigned NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_520_ci,
+  `is_approved` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_product_UNIQUE` (`user_id`,`product_id`),
+  KEY `fk_reviews_product` (`product_id`),
+  CONSTRAINT `fk_reviews_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_reviews`
+--
+
+LOCK TABLES `product_reviews` WRITE;
+/*!40000 ALTER TABLE `product_reviews` DISABLE KEYS */;
+/*!40000 ALTER TABLE `product_reviews` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `product_variants`
+--
+
+DROP TABLE IF EXISTS `product_variants`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `product_variants` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `product_id` bigint unsigned NOT NULL,
+  `size` varchar(20) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `color` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `color_hex` varchar(7) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `price` decimal(15,2) DEFAULT NULL,
+  `sku` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `stock_quantity` int NOT NULL DEFAULT '0',
+  `min_stock_level` int NOT NULL DEFAULT '5',
+  `display_order` int NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku_UNIQUE` (`sku`),
+  UNIQUE KEY `variant_UNIQUE` (`product_id`,`size`,`color`),
+  CONSTRAINT `fk_variants_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `product_variants`
+--
+
+LOCK TABLES `product_variants` WRITE;
+/*!40000 ALTER TABLE `product_variants` DISABLE KEYS */;
+INSERT INTO `product_variants` VALUES (1,1,'S','Trắng','#FFFFFF',NULL,'GCC-001-S-TRG',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(2,1,'M','Trắng','#FFFFFF',NULL,'GCC-001-M-TRG',8,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(3,1,'L','Trắng','#FFFFFF',NULL,'GCC-001-L-TRG',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(4,1,'XL','Trắng','#FFFFFF',NULL,'GCC-001-XL-TRG',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(5,1,'M','Đen','#000000',NULL,'GCC-001-M-DEN',7,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(6,1,'L','Đen','#000000',NULL,'GCC-001-L-DEN',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(7,2,'28','Đen','#000000',NULL,'GCC-002-28-DEN',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(8,2,'30','Đen','#000000',NULL,'GCC-002-30-DEN',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(9,2,'32','Đen','#000000',NULL,'GCC-002-32-DEN',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(10,2,'34','Đen','#000000',NULL,'GCC-002-34-DEN',3,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(11,2,'30','Navy','#1B2A6B',NULL,'GCC-002-30-NVY',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(12,2,'32','Navy','#1B2A6B',NULL,'GCC-002-32-NVY',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(13,3,'S','Nâu GG','#8B6914',NULL,'GCC-003-S-NGG',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(14,3,'M','Nâu GG','#8B6914',NULL,'GCC-003-M-NGG',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(15,3,'L','Nâu GG','#8B6914',NULL,'GCC-003-L-NGG',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(16,3,'XL','Nâu GG','#8B6914',NULL,'GCC-003-XL-NGG',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(17,4,'85cm','Đen','#000000',NULL,'GCC-004-85-DEN',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(18,4,'90cm','Đen','#000000',NULL,'GCC-004-90-DEN',8,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(19,4,'95cm','Đen','#000000',NULL,'GCC-004-95-DEN',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(20,4,'90cm','Nâu','#6B3A2A',NULL,'GCC-004-90-NAU',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(21,4,'95cm','Nâu','#6B3A2A',NULL,'GCC-004-95-NAU',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(22,5,'XS','Hoa Đỏ','#C0392B',NULL,'GCC-005-XS-HDD',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(23,5,'S','Hoa Đỏ','#C0392B',NULL,'GCC-005-S-HDD',4,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(24,5,'M','Hoa Đỏ','#C0392B',NULL,'GCC-005-M-HDD',4,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(25,5,'L','Hoa Đỏ','#C0392B',NULL,'GCC-005-L-HDD',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(26,5,'S','Hoa Xanh','#1A5276',NULL,'GCC-005-S-HXH',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(27,5,'M','Hoa Xanh','#1A5276',NULL,'GCC-005-M-HXH',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(28,6,'S','Đen','#000000',NULL,'LV-001-S-DEN',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(29,6,'M','Đen','#000000',NULL,'LV-001-M-DEN',8,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(30,6,'L','Đen','#000000',NULL,'LV-001-L-DEN',7,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(31,6,'XL','Đen','#000000',NULL,'LV-001-XL-DEN',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(32,6,'M','Trắng','#FFFFFF',NULL,'LV-001-M-TRG',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(33,6,'L','Trắng','#FFFFFF',NULL,'LV-001-L-TRG',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(34,7,'S','Xám Graphite','#555555',NULL,'LV-002-S-XGR',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(35,7,'M','Xám Graphite','#555555',NULL,'LV-002-M-XGR',6,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(36,7,'L','Xám Graphite','#555555',NULL,'LV-002-L-XGR',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(37,7,'XL','Xám Graphite','#555555',NULL,'LV-002-XL-XGR',3,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(38,7,'M','Đen','#000000',NULL,'LV-002-M-DEN',5,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(39,7,'L','Đen','#000000',NULL,'LV-002-L-DEN',4,2,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(40,8,'XS','Xanh Denim','#3B5998',NULL,'LV-003-XS-XDN',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(41,8,'S','Xanh Denim','#3B5998',NULL,'LV-003-S-XDN',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(42,8,'M','Xanh Denim','#3B5998',NULL,'LV-003-M-XDN',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(43,8,'L','Xanh Denim','#3B5998',NULL,'LV-003-L-XDN',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(44,9,'ONE SIZE','Nâu/Vàng','#8B6914',NULL,'LV-004-OS-NVG',10,3,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(45,9,'ONE SIZE','Đen/Xám','#555555',NULL,'LV-004-OS-DXG',8,3,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(46,9,'ONE SIZE','Hồng/Hồng','#E8A0BF',NULL,'LV-004-OS-HHH',6,3,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(47,10,'39','Trắng/Nâu','#FFFFFF',NULL,'LV-005-39-TNB',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(48,10,'40','Trắng/Nâu','#FFFFFF',NULL,'LV-005-40-TNB',4,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(49,10,'41','Trắng/Nâu','#FFFFFF',NULL,'LV-005-41-TNB',4,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(50,10,'42','Trắng/Nâu','#FFFFFF',NULL,'LV-005-42-TNB',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(51,10,'43','Trắng/Nâu','#FFFFFF',NULL,'LV-005-43-TNB',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(52,10,'40','Đen/Đen','#000000',NULL,'LV-005-40-DDD',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(53,10,'41','Đen/Đen','#000000',NULL,'LV-005-41-DDD',3,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(54,10,'42','Đen/Đen','#000000',NULL,'LV-005-42-DDD',2,1,0,1,'2026-03-24 00:05:29','2026-03-24 00:05:29');
+/*!40000 ALTER TABLE `product_variants` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `products`
+--
+
+DROP TABLE IF EXISTS `products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `products` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `brand_id` bigint unsigned NOT NULL,
+  `code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `slug` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_520_ci,
+  `gender` enum('MEN','WOMEN','UNISEX','KIDS') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'UNISEX',
+  `material` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `origin_country` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `base_price` decimal(15,2) NOT NULL,
+  `original_price` decimal(15,2) DEFAULT NULL,
+  `cost_price` decimal(15,2) DEFAULT NULL,
+  `is_new` tinyint(1) NOT NULL DEFAULT '0',
+  `is_on_sale` tinyint(1) NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `sold_count` int NOT NULL DEFAULT '0',
+  `view_count` int unsigned NOT NULL DEFAULT '0',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_UNIQUE` (`code`),
+  UNIQUE KEY `slug_UNIQUE` (`slug`),
+  KEY `fk_products_brand` (`brand_id`),
+  CONSTRAINT `fk_products_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `products`
+--
+
+LOCK TABLES `products` WRITE;
+/*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,1,'GCC-001','Gucci Áo Polo Logo Trắng','gucci-ao-polo-logo-trang','Áo polo Gucci cổ điển với logo thêu nổi bật trên ngực trái. Chất liệu cotton pima cao cấp.','MEN','Cotton Pima 100%','Italy',12500000.00,14000000.00,6000000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(2,1,'GCC-002','Gucci Quần Tây Slim-Fit Đen','gucci-quan-tay-slim-den','Quần tây dáng slim-fit cao cấp, cắt may tinh tế từ len merino Ý.','MEN','Wool Merino 98% / Elastane 2%','Italy',18900000.00,21000000.00,9000000.00,0,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(3,1,'GCC-003','Gucci Áo Khoác Bomber GG Canvas','gucci-ao-khoac-bomber-gg','Áo khoác bomber biểu tượng với họa tiết GG Canvas toàn thân, lót lông cừu ấm áp.','UNISEX','GG Canvas / Polyester Lining','Italy',68000000.00,75000000.00,32000000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(4,1,'GCC-004','Gucci Thắt Lưng Da Logo Vàng','gucci-that-lung-da-logo','Thắt lưng da bê thật với khóa logo chữ G màu vàng đặc trưng.','MEN','Da bê thật / Kim loại mạ vàng','Italy',9800000.00,11000000.00,4500000.00,0,1,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(5,1,'GCC-005','Gucci Đầm Midi Floral Nữ','gucci-dam-midi-hoa-nu','Đầm midi dáng xòe với họa tiết hoa đặc trưng của Gucci, vải lụa tự nhiên mềm mại.','WOMEN','Lụa 100%','Italy',32000000.00,36000000.00,15000000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(6,2,'LV-001','Louis Vuitton Áo Thun Monogram Đen','lv-ao-thun-monogram-den','Áo thun oversize với họa tiết Monogram LV toàn thân, cotton hữu cơ cao cấp.','UNISEX','Cotton Hữu Cơ 100%','France',15800000.00,17500000.00,7500000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(7,2,'LV-002','Louis Vuitton Quần Jogger Damier','lv-quan-jogger-damier','Quần jogger thể thao sang trọng với họa tiết Damier Graphite biểu tượng.','MEN','Cotton Terry / Polyester','France',22000000.00,25000000.00,10500000.00,0,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(8,2,'LV-003','Louis Vuitton Áo Blouson Monogram','lv-ao-blouson-monogram','Áo blouson cắt ngắn với họa tiết Monogram Denim nổi bật, phong cách đường phố xa xỉ.','WOMEN','Denim Cotton 100%','France',45000000.00,50000000.00,21000000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(9,2,'LV-004','Louis Vuitton Khăn Quàng Monogram','lv-khan-quang-monogram','Khăn quàng lụa vuông biểu tượng với họa tiết Monogram cổ điển, kích thước 90x90cm.','UNISEX','Lụa 100%','France',11500000.00,13000000.00,5500000.00,0,1,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29'),(10,2,'LV-005','Louis Vuitton LV Trainer Sneaker','lv-giay-sneaker-trainer','Sneaker cao cấp phối màu với họa tiết Monogram Flower thêu tay, đế cao su tự nhiên.','UNISEX','Da bê / Canvas LV / Cao su','France',28500000.00,32000000.00,13500000.00,1,0,1,0,0,'2026-03-24 00:05:29','2026-03-24 00:05:29');
+/*!40000 ALTER TABLE `products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `purchase_items`
+--
+
+DROP TABLE IF EXISTS `purchase_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchase_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `purchase_id` bigint unsigned NOT NULL,
+  `variant_id` bigint unsigned NOT NULL,
+  `quantity_ordered` int unsigned NOT NULL,
+  `quantity_received` int unsigned NOT NULL DEFAULT '0',
+  `unit_cost` decimal(15,2) NOT NULL,
+  `line_total` decimal(15,2) NOT NULL,
+  `quality_status` enum('PENDING','OK','DEFECTIVE','PARTIALLY_DEFECTIVE','RETURNED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'PENDING',
+  `defective_qty` int unsigned NOT NULL DEFAULT '0',
+  `defect_reason` text COLLATE utf8mb4_unicode_520_ci,
+  `is_received` tinyint(1) NOT NULL DEFAULT '0',
+  `received_date` datetime DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_520_ci,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_purchase_items_purchase` (`purchase_id`),
+  KEY `fk_purchase_items_variant` (`variant_id`),
+  CONSTRAINT `fk_purchase_items_purchase` FOREIGN KEY (`purchase_id`) REFERENCES `purchases` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_purchase_items_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `purchase_items`
+--
+
+LOCK TABLES `purchase_items` WRITE;
+/*!40000 ALTER TABLE `purchase_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `purchase_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `purchases`
+--
+
+DROP TABLE IF EXISTS `purchases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `purchases` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `supplier_id` bigint unsigned NOT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `received_by` bigint unsigned DEFAULT NULL,
+  `purchase_code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `supplier_invoice_no` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `subtotal` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `discount_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `tax_amount` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `shipping_cost` decimal(15,2) NOT NULL DEFAULT '0.00',
+  `total_cost` decimal(15,2) NOT NULL,
+  `payment_status` enum('PENDING','PAID') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'PENDING',
+  `status` enum('DRAFT','CONFIRMED','RECEIVED','COMPLETED','CANCELLED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'DRAFT',
+  `notes` text COLLATE utf8mb4_unicode_520_ci,
+  `issues` text COLLATE utf8mb4_unicode_520_ci,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `confirmed_at` datetime DEFAULT NULL,
+  `received_at` datetime DEFAULT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `purchase_code_UNIQUE` (`purchase_code`),
+  KEY `fk_purchases_supplier` (`supplier_id`),
+  KEY `fk_purchases_created_by` (`created_by`),
+  KEY `fk_purchases_received_by` (`received_by`),
+  CONSTRAINT `fk_purchases_created_by` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_purchases_received_by` FOREIGN KEY (`received_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_purchases_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `purchases`
+--
+
+LOCK TABLES `purchases` WRITE;
+/*!40000 ALTER TABLE `purchases` DISABLE KEYS */;
+/*!40000 ALTER TABLE `purchases` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `stock_adjustment_items`
+--
+
+DROP TABLE IF EXISTS `stock_adjustment_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stock_adjustment_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `adjustment_id` bigint unsigned NOT NULL,
+  `variant_id` bigint unsigned NOT NULL,
+  `quantity_change` int NOT NULL,
+  `quantity_before` int NOT NULL,
+  `quantity_after` int NOT NULL,
+  `note` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_adj_items_adjustment` (`adjustment_id`),
+  KEY `fk_adj_items_variant` (`variant_id`),
+  CONSTRAINT `fk_adj_items_adjustment` FOREIGN KEY (`adjustment_id`) REFERENCES `stock_adjustments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_adj_items_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stock_adjustment_items`
+--
+
+LOCK TABLES `stock_adjustment_items` WRITE;
+/*!40000 ALTER TABLE `stock_adjustment_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stock_adjustment_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `stock_adjustments`
+--
+
+DROP TABLE IF EXISTS `stock_adjustments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stock_adjustments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `type` enum('EXPORT','STOCKTAKE') COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `status` enum('DRAFT','CONFIRMED','CANCELLED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'DRAFT',
+  `reason` varchar(255) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `notes` text COLLATE utf8mb4_unicode_520_ci,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `confirmed_at` datetime DEFAULT NULL,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code_UNIQUE` (`code`),
+  KEY `fk_adjustments_user` (`created_by`),
+  CONSTRAINT `fk_adjustments_user` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stock_adjustments`
+--
+
+LOCK TABLES `stock_adjustments` WRITE;
+/*!40000 ALTER TABLE `stock_adjustments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stock_adjustments` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `suppliers`
+--
+
+DROP TABLE IF EXISTS `suppliers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `suppliers` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `code` varchar(50) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `email` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `contact_person` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_520_ci,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `notes` text COLLATE utf8mb4_unicode_520_ci,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_UNIQUE` (`name`),
+  UNIQUE KEY `code_UNIQUE` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `suppliers`
+--
+
+LOCK TABLES `suppliers` WRITE;
+/*!40000 ALTER TABLE `suppliers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `suppliers` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `token_blacklist`
+--
+
+DROP TABLE IF EXISTS `token_blacklist`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `token_blacklist` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `token` varchar(512) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `reason` enum('LOGOUT','REVOKED') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'LOGOUT',
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `fk_token_blacklist_user` (`user_id`),
+  CONSTRAINT `fk_token_blacklist_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `token_blacklist`
+--
+
+LOCK TABLES `token_blacklist` WRITE;
+/*!40000 ALTER TABLE `token_blacklist` DISABLE KEYS */;
+/*!40000 ALTER TABLE `token_blacklist` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_profiles`
+--
+
+DROP TABLE IF EXISTS `user_profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_profiles` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `first_name` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `last_name` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `avatar_url` varchar(500) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `avatar_public_id` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `shipping_name` varchar(200) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `shipping_phone` varchar(15) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `shipping_street` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `shipping_ward` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `shipping_district` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `shipping_province` varchar(100) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id_UNIQUE` (`user_id`),
+  CONSTRAINT `fk_user_profiles_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_profiles`
+--
+
+LOCK TABLES `user_profiles` WRITE;
+/*!40000 ALTER TABLE `user_profiles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `user_profiles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `provider` enum('LOCAL','GOOGLE') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'LOCAL',
+  `provider_id` varchar(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `role` enum('USER','ADMIN') COLLATE utf8mb4_unicode_520_ci NOT NULL DEFAULT 'USER',
+  `is_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `last_login` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_UNIQUE` (`email`),
+  KEY `idx_users_provider` (`provider`,`provider_id`),
+  KEY `idx_users_role_active` (`role`,`is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `wishlists`
+--
+
+DROP TABLE IF EXISTS `wishlists`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `wishlists` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `product_id` bigint unsigned NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_product_UNIQUE` (`user_id`,`product_id`),
+  KEY `fk_wishlists_product` (`product_id`),
+  CONSTRAINT `fk_wishlists_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_wishlists_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wishlists`
+--
+
+LOCK TABLES `wishlists` WRITE;
+/*!40000 ALTER TABLE `wishlists` DISABLE KEYS */;
+/*!40000 ALTER TABLE `wishlists` ENABLE KEYS */;
+UNLOCK TABLES;
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-03-24  0:08:51
