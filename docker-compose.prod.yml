@@ -1,9 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: clothes-api
+    image: fernirx/clothes-api:latest
     container_name: ${APP_NAME}
     depends_on:
       mysql:
@@ -15,7 +12,7 @@ services:
     restart: always
     networks:
       - clothes-net
-  
+
   mysql:
     image: mysql:8.0.45
     container_name: clothes-mysql
