@@ -209,6 +209,8 @@ server:
     # Base path cho toàn bộ API
     context-path: ${SERVER_CONTEXT_PATH:/api/clothes}
 
+  # Chiến lược xử lý các header được forward từ proxy (ví dụ: X-Forwarded-For, X-Forwarded-Proto)
+  forward-headers-strategy: framework
 
 # == APPLICATION =========================================
 application:
