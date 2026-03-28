@@ -2,7 +2,7 @@ name: CD pipeline
 
 on:
   push:
-    branches: [feat/ci-cd-setup]
+    branches: [feat/main]
 
 jobs:
   build:
