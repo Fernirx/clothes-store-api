@@ -12,6 +12,7 @@ import vn.fernirx.clothes.inventory.enums.AdjustmentStatus;
 @Mapper(componentModel = "spring", uses = {StockAdjustmentItemMapper.class})
 public interface StockAdjustmentMapper {
 
+    @Mapping(source = "createdBy.id", target = "createdBy")
     StockAdjustmentResponse toResponse(StockAdjustment adjustment);
 
     @Mapping(target = "items", ignore = true)

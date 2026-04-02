@@ -20,7 +20,12 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_provider",
+                columnList = "provider, provider_id"),
+        @Index(name = "idx_users_role_active",
+                columnList = "role, is_active")},
+        uniqueConstraints = {@UniqueConstraint(name = "email_UNIQUE", columnNames = {"email"})})
 public class User extends BaseEntity {
     @Size(max = 100)
     @NotNull
@@ -34,7 +39,6 @@ public class User extends BaseEntity {
     @NotNull
     @ColumnDefault("'LOCAL'")
     @Enumerated(EnumType.STRING)
-    @Lob
     @Column(name = "provider", nullable = false)
     private Provider provider;
 
@@ -45,7 +49,6 @@ public class User extends BaseEntity {
     @NotNull
     @ColumnDefault("'USER'")
     @Enumerated(EnumType.STRING)
-    @Lob
     @Column(name = "role", nullable = false)
     private UserRole role;
 
@@ -61,20 +64,4 @@ public class User extends BaseEntity {
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
-
-    @OneToMany
-    @JoinColumn(name = "created_by")
-    private Set<InventoryTransaction> inventoryTransactions = new LinkedHashSet<>();
-
-    @OneToMany
-    @JoinColumn(name = "created_by")
-    private Set<Purchase> createdPurchases = new LinkedHashSet<>();
-
-    @OneToMany
-    @JoinColumn(name = "received_by")
-    private Set<Purchase> receivedPurchases = new LinkedHashSet<>();
-
-    @OneToMany
-    @JoinColumn(name = "created_by")
-    private Set<StockAdjustment> stockAdjustments = new LinkedHashSet<>();
 }

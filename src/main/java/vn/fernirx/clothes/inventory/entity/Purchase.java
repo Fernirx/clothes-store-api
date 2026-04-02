@@ -7,6 +7,7 @@ import lombok.Setter;
 import vn.fernirx.clothes.common.entity.BaseEntity;
 import vn.fernirx.clothes.inventory.enums.PaymentStatus;
 import vn.fernirx.clothes.inventory.enums.PurchaseStatus;
+import vn.fernirx.clothes.user.entity.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -24,11 +25,13 @@ public class Purchase extends BaseEntity {
     @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
-    @Column(name = "received_by")
-    private Long receivedBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "received_by", nullable = false)
+    private User receivedBy;
 
     @Column(name = "purchase_code", unique = true, nullable = false)
     private String purchaseCode;
