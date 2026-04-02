@@ -1,9 +1,13 @@
 package vn.fernirx.clothes.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.fernirx.clothes.auth.enums.Provider;
+import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.mapper.UserMapper;
@@ -16,6 +20,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -23,5 +28,23 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         return userMapper.toDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse createUser(CreateUserRequest createUserRequest) {
+        validateEmailNotExists(createUserRequest.email());
+
+        User user = userMapper.toUserFromCreateRequest(createUserRequest);
+        user.setPasswordHash(passwordEncoder.encode(createUserRequest.password()));
+        user.setProvider(Provider.LOCAL);
+        userRepository.save(user);
+        return userMapper.toDto(user);
+    }
+
+    private void validateEmailNotExists(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new ResourceAlreadyExistsException("Email");
+        }
     }
 }
