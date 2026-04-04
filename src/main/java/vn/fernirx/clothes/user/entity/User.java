@@ -5,17 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.*;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.common.entity.BaseEntity;
 import vn.fernirx.clothes.common.enums.UserRole;
-import vn.fernirx.clothes.inventory.entity.InventoryTransaction;
-import vn.fernirx.clothes.inventory.entity.Purchase;
-import vn.fernirx.clothes.inventory.entity.StockAdjustment;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -23,9 +18,11 @@ import java.util.Set;
 @Table(name = "users", indexes = {
         @Index(name = "idx_users_provider",
                 columnList = "provider, provider_id"),
-        @Index(name = "idx_users_role_active",
-                columnList = "role, is_active")},
+        @Index(name = "idx_users_active",
+                columnList = "deleted, is_active, role")},
         uniqueConstraints = {@UniqueConstraint(name = "email_UNIQUE", columnNames = {"email"})})
+@SQLDelete(sql = "UPDATE users SET deleted = true, is_active = false WHERE id = ?")
+@SQLRestriction("deleted = false")
 public class User extends BaseEntity {
     @Size(max = 100)
     @NotNull
@@ -55,12 +52,17 @@ public class User extends BaseEntity {
     @NotNull
     @ColumnDefault("0")
     @Column(name = "is_verified", nullable = false)
-    private Boolean isVerified;
+    private boolean isVerified = false;
 
     @NotNull
     @ColumnDefault("1")
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private boolean isActive = true;
+
+    @NotNull
+    @ColumnDefault("0")
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
