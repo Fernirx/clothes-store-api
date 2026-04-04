@@ -52,4 +52,12 @@ public class UserController {
         userService.softDeleteById(id);
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<SuccessResponse<Void>> updateUserStatus(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        userService.updateActiveStatus(id, active);
+        return ResponseEntity.ok(SuccessResponse.of("User status updated successfully"));
+    }
 }

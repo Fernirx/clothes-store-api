@@ -9,4 +9,5 @@ public interface UserService {
     UserResponse getUserById(Long id);
     UserResponse createUser(CreateUserRequest createUserRequest);
     void softDeleteById(Long id);
+    void updateActiveStatus(Long id, boolean active);
 }

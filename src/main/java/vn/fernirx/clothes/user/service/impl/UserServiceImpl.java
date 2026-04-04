@@ -63,6 +63,15 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    @Override
+    @Transactional
+    public void updateActiveStatus(Long id, boolean active) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        user.setActive(active);
+        userRepository.save(user);
+    }
+
     private void validateEmailNotExists(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Email");
