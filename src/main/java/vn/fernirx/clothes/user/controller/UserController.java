@@ -48,11 +48,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<SuccessResponse<UserResponse>> deleteUserById(@PathVariable Long id) {
-        UserResponse userResponse = userService.softDeleteById(id);
-        return ResponseEntity.ok(SuccessResponse.of(
-                "User delete successfully",
-                userResponse)
-        );
+    public ResponseEntity<SuccessResponse<Void>> deleteUserById(@PathVariable Long id) {
+        userService.softDeleteById(id);
+        return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
     }
 }

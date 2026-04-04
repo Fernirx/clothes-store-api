@@ -57,11 +57,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponse softDeleteById(Long id) {
+    public void softDeleteById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         userRepository.delete(user);
-        return userMapper.toDto(user);
     }
 
     private void validateEmailNotExists(String email) {
