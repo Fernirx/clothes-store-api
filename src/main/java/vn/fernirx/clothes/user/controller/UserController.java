@@ -32,4 +32,13 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(SuccessResponse.of("User created successfully", userResponse));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<SuccessResponse<UserResponse>> deleteUserById(@PathVariable Long id) {
+        UserResponse userResponse = userService.softDeleteById(id);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "User delete successfully",
+                userResponse)
+        );
+    }
 }

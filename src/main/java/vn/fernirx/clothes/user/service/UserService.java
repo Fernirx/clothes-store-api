@@ -6,4 +6,5 @@ import vn.fernirx.clothes.user.dto.response.UserResponse;
 public interface UserService {
     public UserResponse getUserById(Long id);
     public UserResponse createUser(CreateUserRequest createUserRequest);
+    public UserResponse softDeleteById(Long id);
 }

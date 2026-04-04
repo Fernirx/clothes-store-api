@@ -42,6 +42,15 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(user);
     }
 
+    @Override
+    @Transactional
+    public UserResponse softDeleteById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        userRepository.delete(user);
+        return userMapper.toDto(user);
+    }
+
     private void validateEmailNotExists(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new ResourceAlreadyExistsException("Email");
