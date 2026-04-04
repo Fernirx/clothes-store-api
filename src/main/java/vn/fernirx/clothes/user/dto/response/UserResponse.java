@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record UserResponse(
         Long id,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
         String email,
         Provider provider,
         String providerId,
         UserRole role,
         Boolean isVerified,
         Boolean isActive,
-        LocalDateTime lastLogin) {
+        LocalDateTime lastLogin,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt) {
 }
