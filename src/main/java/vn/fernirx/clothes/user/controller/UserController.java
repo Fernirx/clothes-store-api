@@ -2,12 +2,14 @@ package vn.fernirx.clothes.user.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
+import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.service.UserService;
 
@@ -22,8 +24,9 @@ public class UserController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String sortBy,
-            @RequestParam(required = false) String sortDir) {
-        PageResponse<UserResponse> data = userService.getAll(page, size, sortBy, sortDir);
+            @RequestParam(required = false) String sortDir,
+            @ParameterObject @ModelAttribute UserFilterRequest filter) {
+        PageResponse<UserResponse> data = userService.getAll(page, size, sortBy, sortDir, filter);
         return ResponseEntity.ok(SuccessResponse.of(
                 "Users retrieved successfully",
                 data

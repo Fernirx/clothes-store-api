@@ -3,6 +3,7 @@ package vn.fernirx.clothes.user.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +13,12 @@ import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
+import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.mapper.UserMapper;
 import vn.fernirx.clothes.user.repository.UserRepository;
+import vn.fernirx.clothes.user.repository.UserSpecification;
 import vn.fernirx.clothes.user.service.UserService;
 
 @Service
@@ -28,9 +31,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public PageResponse<UserResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
+    public PageResponse<UserResponse> getAll(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir,
+            UserFilterRequest filter) {
         Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, sortDir);
-        Page<UserResponse> userResponses = userRepository.findAll(pageable)
+        Specification<User> userSpecification = UserSpecification.build(filter);
+        Page<UserResponse> userResponses = userRepository.findAll(userSpecification, pageable)
                 .map(userMapper::toDto);
         return PageResponse.of(userResponses);
     }
