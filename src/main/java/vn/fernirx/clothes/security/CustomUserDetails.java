@@ -15,8 +15,8 @@ public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
-    private final boolean isActive;
-    private final boolean isVerified;
+    private final boolean active;
+    private final boolean verified;
     private final boolean deleted;
     private final Collection<? extends GrantedAuthority> authorities;
 
@@ -27,12 +27,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !deleted && isVerified;
+        return !deleted && verified;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return isActive;
+        return active;
     }
 
     @Override

@@ -16,8 +16,8 @@ public record UserResponse(
         Provider provider,
         String providerId,
         UserRole role,
-        Boolean isVerified,
-        Boolean isActive,
+        Boolean verified,
+        Boolean active,
         LocalDateTime lastLogin,
         LocalDateTime createdAt,
         LocalDateTime updatedAt) {

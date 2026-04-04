@@ -52,12 +52,12 @@ public class User extends BaseEntity {
     @NotNull
     @ColumnDefault("0")
     @Column(name = "is_verified", nullable = false)
-    private boolean isVerified = false;
+    private boolean verified = false;
 
     @NotNull
     @ColumnDefault("1")
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    private boolean active = true;
 
     @NotNull
     @ColumnDefault("0")

@@ -16,6 +16,6 @@ public record CreateUserRequest(
         @NotBlank @Size(max = 100) @Email String email,
         @NotBlank @Size(max = 255) @StrongPassword String password,
         @NotNull UserRole role,
-        @NotNull Boolean isVerified,
-        @NotNull Boolean isActive) {
+        @NotNull Boolean verified,
+        @NotNull Boolean active) {
 }
