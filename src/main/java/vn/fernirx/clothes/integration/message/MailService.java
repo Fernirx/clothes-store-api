@@ -61,5 +61,6 @@ public class MailService {
         context.setVariable("username", username);
         context.setVariable("newPassword", password);
         String htmlContent = templateEngine.process("mail/admin-reset-password", context);
+        sendMail(to, subject, htmlContent);
     }
 }
