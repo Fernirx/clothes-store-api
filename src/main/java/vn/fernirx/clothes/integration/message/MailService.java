@@ -53,4 +53,13 @@ public class MailService {
         String htmlContent = templateEngine.process("mail/forgot-password-otp", context);
         sendMail(to, subject, htmlContent);
     }
+
+    @Async
+    public void sendAdminResetPassword(String to, String username, String password) {
+        String subject = "Clothes - Mật khẩu mới";
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("newPassword", password);
+        String htmlContent = templateEngine.process("mail/admin-reset-password", context);
+    }
 }

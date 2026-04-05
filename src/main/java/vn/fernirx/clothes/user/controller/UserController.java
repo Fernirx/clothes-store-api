@@ -75,4 +75,10 @@ public class UserController {
         userService.updateActiveStatus(id, active);
         return ResponseEntity.ok(SuccessResponse.of("User status updated successfully"));
     }
+
+    @PatchMapping("/{id}/reset-password")
+    public ResponseEntity<SuccessResponse<Void>> resetPassword(@PathVariable Long id) {
+        userService.resetPassword(id);
+        return ResponseEntity.ok(SuccessResponse.of("Password reset successfully"));
+    }
 }

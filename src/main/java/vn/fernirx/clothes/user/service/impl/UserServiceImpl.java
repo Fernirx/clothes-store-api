@@ -12,12 +12,16 @@ import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
+import vn.fernirx.clothes.common.util.PasswordUtil;
+import vn.fernirx.clothes.integration.message.MailService;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.entity.User;
+import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.mapper.UserMapper;
+import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
 import vn.fernirx.clothes.user.repository.UserSpecification;
 import vn.fernirx.clothes.user.service.UserService;
@@ -27,8 +31,10 @@ import vn.fernirx.clothes.user.service.UserService;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Override
     @Transactional(readOnly = true)
@@ -99,6 +105,23 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         user.setActive(active);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        UserProfile userProfile = userProfileRepository.findByUserId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
+        String newPassword = PasswordUtil.generateRandomPassword();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        mailService.sendAdminResetPassword(
+                user.getEmail(),
+                userProfile.getFirstName(),
+                newPassword
+        );
     }
 
     private void validateEmailNotExists(String email) {
