@@ -1,5 +1,6 @@
 package vn.fernirx.clothes.handler;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import vn.fernirx.clothes.common.constant.ValidationConstants;
 import vn.fernirx.clothes.common.enums.ErrorCode;
 import vn.fernirx.clothes.common.exception.AppException;
 import vn.fernirx.clothes.common.response.ErrorDetail;
@@ -69,6 +71,24 @@ public class GlobalExceptionHandler {
                         Objects.requireNonNullElse(fieldError.getDefaultMessage(), "Invalid value")
                 ))
                 .toList();
+        ErrorResponse errorResponse = ErrorResponse.ofValidation(
+                ErrorCode.VALIDATION_ERROR,
+                "One or more fields failed validation",
+                errorDetails
+        );
+        return ResponseEntity
+                .status(ErrorCode.VALIDATION_ERROR.getHttpStatus())
+                .body(errorResponse);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+        List<ErrorDetail> errorDetails = ex.getConstraintViolations()
+                .stream()
+                .map(violation ->  new ErrorDetail(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage()
+                )).toList();
         ErrorResponse errorResponse = ErrorResponse.ofValidation(
                 ErrorCode.VALIDATION_ERROR,
                 "One or more fields failed validation",
