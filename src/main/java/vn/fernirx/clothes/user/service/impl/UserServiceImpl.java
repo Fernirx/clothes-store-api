@@ -13,6 +13,7 @@ import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
+import vn.fernirx.clothes.user.dto.request.UpdateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.entity.User;
@@ -70,6 +71,25 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         userRepository.delete(user);
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+
+        if (request.email() != null) {
+            validateEmailNotExists(request.email());
+            user.setEmail(request.email());
+        }
+        if (request.role() != null) {
+            user.setRole(request.role());
+        }
+        if (request.verified() != null) {
+            user.setVerified(request.verified());
+        }
+        userRepository.save(user);
+        return userMapper.toDto(user);
     }
 
     @Override

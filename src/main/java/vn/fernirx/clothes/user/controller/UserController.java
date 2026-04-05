@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
+import vn.fernirx.clothes.user.dto.request.UpdateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.service.UserService;
@@ -54,6 +55,17 @@ public class UserController {
     public ResponseEntity<SuccessResponse<Void>> deleteUserById(@PathVariable Long id) {
         userService.softDeleteById(id);
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<SuccessResponse<UserResponse>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest updateUserRequest) {
+        UserResponse userResponse = userService.updateUser(id, updateUserRequest);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "User updated successfully",
+                userResponse
+        ));
     }
 
     @PatchMapping("/{id}/status")
