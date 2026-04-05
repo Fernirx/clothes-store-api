@@ -68,6 +68,12 @@ public class UserServiceImpl implements UserService {
         user.setPasswordHash(passwordEncoder.encode(createUserRequest.password()));
         user.setProvider(Provider.LOCAL);
         userRepository.save(user);
+
+        String firstName = user.getEmail().split("@")[0];
+        UserProfile userProfile = new UserProfile();
+        userProfile.setFirstName(firstName);
+        userProfile.setUser(user);
+        userProfileRepository.save(userProfile);
         return userMapper.toDto(user);
     }
 
