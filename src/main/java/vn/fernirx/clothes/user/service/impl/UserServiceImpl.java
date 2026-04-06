@@ -97,20 +97,14 @@ public class UserServiceImpl implements UserService {
         if (request.role() != null) {
             user.setRole(request.role());
         }
+        if (request.active() != null) {
+            user.setActive(request.active());
+        }
         if (request.verified() != null) {
             user.setVerified(request.verified());
         }
         userRepository.save(user);
         return userMapper.toDto(user);
-    }
-
-    @Override
-    @Transactional
-    public void updateActiveStatus(Long id, boolean active) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User"));
-        user.setActive(active);
-        userRepository.save(user);
     }
 
     @Override

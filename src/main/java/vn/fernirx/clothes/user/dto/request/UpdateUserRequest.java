@@ -10,7 +10,8 @@ import vn.fernirx.clothes.common.enums.UserRole;
  * DTO for {@link vn.fernirx.clothes.user.entity.User}
  */
 public record UpdateUserRequest(
-        @NotBlank @Size(max = 100) @Email String email,
-        @NotNull UserRole role,
-        @NotNull Boolean verified) {
+        @Size(max = 100) @Email String email,
+        UserRole role,
+        Boolean active,
+        Boolean verified) {
 }
