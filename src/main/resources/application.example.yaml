@@ -268,3 +268,15 @@ application:
     # Thời gian browser cache kết quả preflight request
     # PT1H = 1 giờ | PT30M = 30 phút
     max-age: ${CORS_MAX_AGE:PT1H}
+
+  storage:
+    cloudinary:
+      # Tên cloud (cloud name) trong Cloudinary account
+      # Dùng để xác định tài khoản lưu trữ media
+      cloudName: ${CLOUDINARY_CLOUD_NAME:your-cloud-name}
+
+      # API Key dùng để xác thực khi gọi Cloudinary API
+      apiKey: ${CLOUDINARY_API_KEY:your-api-key}
+
+      # API Secret dùng để ký request (bảo mật)
+      apiSecret: ${CLOUDINARY_API_SECRET:your-api-secret}
