@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import vn.fernirx.clothes.catalog.entity.ProductVariant;
 import vn.fernirx.clothes.inventory.enums.ReferenceType;
 import vn.fernirx.clothes.inventory.enums.TransactionType;
+import vn.fernirx.clothes.user.entity.User;
 
 import java.time.LocalDateTime;
 
@@ -28,8 +29,9 @@ public class InventoryTransaction {
     @JoinColumn(name = "variant_id", nullable = false)
     private ProductVariant variant;
 
-    @Column(name = "created_by")
-    private Long createdBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)

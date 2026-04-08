@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     - "ADMIN" = Quản trị viên hệ thống, có toàn quyền quản lý người dùng, dữ liệu và cấu hình hệ thống',
   `is_verified` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Trạng thái xác thực email: 0=chưa xác thực, 1=đã xác thực',
   `is_active` BOOLEAN NOT NULL DEFAULT 1 COMMENT 'Trạng thái tài khoản: 1=hoạt động, 0=bị khóa',
+  `deleted` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Xóa mềm 1 = đã bị xóa, 0 = chưa bị xóa',
   -- Timestamp
   `last_login` DATETIME NULL DEFAULT NULL COMMENT 'Thời điểm đăng nhập gần nhất',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo tài khoản',

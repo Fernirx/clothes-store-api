@@ -1,7 +1,7 @@
 package vn.fernirx.clothes.security;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,14 +9,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @NullMarked
-@Data
+@Getter
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
-    private final boolean isActive;
-    private final boolean isVerified;
+    private final boolean active;
+    private final boolean verified;
+    private final boolean deleted;
     private final Collection<? extends GrantedAuthority> authorities;
 
     @Override
@@ -26,12 +27,12 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive && isVerified;
+        return !deleted && verified;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
+    public boolean isAccountNonLocked() {
+        return active;
     }
 
     @Override

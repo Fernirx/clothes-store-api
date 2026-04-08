@@ -1,0 +1,19 @@
+package vn.fernirx.clothes.user.mapper;
+
+import org.mapstruct.*;
+import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
+import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
+import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
+import vn.fernirx.clothes.user.entity.UserProfile;
+
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)
+public interface UserProfileMapper {
+    @Mapping(target = "email", source = "user.email")
+    UserProfileResponse toDto(UserProfile userProfile);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateUserProfile(UpdateProfileRequest req, @MappingTarget UserProfile userProfile);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateShipping(UpdateShippingRequest req, @MappingTarget UserProfile userProfile);
+}

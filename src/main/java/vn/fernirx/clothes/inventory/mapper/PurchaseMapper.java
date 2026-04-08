@@ -15,6 +15,8 @@ public interface PurchaseMapper {
 
     @Mapping(source = "supplier.id", target = "supplierId")
     @Mapping(source = "supplier.name", target = "supplierName")
+    @Mapping(source = "createdBy.id", target = "createdBy")
+    @Mapping(source = "receivedBy.id", target = "receivedBy")
     PurchaseResponse toResponse(Purchase purchase);
 
     @Mapping(target = "supplier", ignore = true)

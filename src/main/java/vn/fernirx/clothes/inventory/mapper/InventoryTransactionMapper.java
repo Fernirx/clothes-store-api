@@ -11,6 +11,7 @@ public interface InventoryTransactionMapper {
 
     @Mapping(source = "variant.id", target = "variantId")
     @Mapping(source = "variant.sku", target = "variantSku")
+    @Mapping(source = "createdBy.id", target = "createdBy")
     InventoryTransactionResponse toResponse(InventoryTransaction transaction);
 
     @Mapping(target = "variant", ignore = true)
