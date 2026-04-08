@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.integration.storage.CloudinaryService;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
+import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.mapper.UserProfileMapper;
@@ -36,6 +37,15 @@ public class UserProfileServiceImpl implements UserProfileService {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
         userProfileMapper.updateUserProfile(req, userProfile);
+        userProfileRepository.save(userProfile);
+        return userProfileMapper.toDto(userProfile);
+    }
+
+    @Override
+    public UserProfileResponse updateShipping(Long userId, UpdateShippingRequest req) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
+        userProfileMapper.updateShipping(req, userProfile);
         userProfileRepository.save(userProfile);
         return userProfileMapper.toDto(userProfile);
     }

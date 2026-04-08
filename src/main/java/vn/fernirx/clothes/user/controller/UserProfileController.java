@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
+import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.service.UserProfileService;
@@ -39,6 +40,18 @@ public class UserProfileController {
                 userProfileService.updateUserProfile(userDetails.getId(), updateProfileRequest);
         return ResponseEntity.ok(SuccessResponse.of(
                 "User profile updated successfully",
+                data
+        ));
+    }
+
+    @PatchMapping("/profile/shipping")
+    public ResponseEntity<SuccessResponse<UserProfileResponse>> updateShipping(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody UpdateShippingRequest updateShippingRequest) {
+        UserProfileResponse data =
+                userProfileService.updateShipping(userDetails.getId(), updateShippingRequest);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "User shipping updated successfully",
                 data
         ));
     }
