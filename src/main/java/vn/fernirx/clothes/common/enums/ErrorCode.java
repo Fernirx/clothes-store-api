@@ -34,6 +34,10 @@ public enum ErrorCode {
     TOKEN_INVALID("TOKEN_INVALID", HttpStatus.UNAUTHORIZED),
     ACCESS_DENIED("ACCESS_DENIED", HttpStatus.FORBIDDEN),
 
+    /* ================== PASSWORD ================== */
+    INVALID_PASSWORD("INVALID_PASSWORD", HttpStatus.BAD_REQUEST),
+    PASSWORD_REUSE_NOT_ALLOWED("PASSWORD_REUSE_NOT_ALLOWED", HttpStatus.BAD_REQUEST),
+
     /* ================== OTP ================== */
     OTP_VALIDATION_FAILED("OTP_VALIDATION_FAILED", HttpStatus.BAD_REQUEST),
     OTP_MAX_ATTEMPTS_EXCEED("OTP_MAX_ATTEMPTS_EXCEED", HttpStatus.BAD_REQUEST),

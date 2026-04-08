@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.security.CustomUserDetails;
+import vn.fernirx.clothes.user.dto.request.ChangePasswordRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
-import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.service.UserProfileService;
 import vn.fernirx.clothes.user.service.UserService;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users/me/profile")
+@RequestMapping("/users/me")
 @RequiredArgsConstructor
-public class UserProfileController {
+public class MeController {
     private final UserProfileService userProfileService;
     private final UserService userService;
 
@@ -68,5 +68,13 @@ public class UserProfileController {
                 "Avatar updated successfully",
                 Map.of("avatarUrl", url)
         ));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<SuccessResponse<Void>> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        userService.changePassword(userDetails.getId(), changePasswordRequest);
+        return ResponseEntity.ok(SuccessResponse.of("Password changed successfully"));
     }
 }

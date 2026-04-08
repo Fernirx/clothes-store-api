@@ -14,12 +14,14 @@ import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 import vn.fernirx.clothes.common.util.PasswordUtil;
 import vn.fernirx.clothes.integration.message.MailService;
+import vn.fernirx.clothes.user.dto.request.ChangePasswordRequest;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UserFilterRequest;
 import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
+import vn.fernirx.clothes.user.exception.InvalidPasswordException;
 import vn.fernirx.clothes.user.mapper.UserMapper;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
@@ -29,7 +31,6 @@ import vn.fernirx.clothes.user.service.UserService;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
     private final UserMapper userMapper;
@@ -122,6 +123,21 @@ public class UserServiceImpl implements UserService {
                 userProfile.getFirstName(),
                 newPassword
         );
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(Long id, ChangePasswordRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPasswordHash())) {
+            throw InvalidPasswordException.oldPasswordIncorrect();
+        }
+        if (!passwordEncoder.matches(request.newPassword(), user.getPasswordHash())) {
+            throw InvalidPasswordException.reuseNotAllowed();
+        }
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
     }
 
     private void validateEmailNotExists(String email) {
