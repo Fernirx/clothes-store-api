@@ -11,5 +11,9 @@ public interface PurchaseItemRepository extends JpaRepository<PurchaseItem, Long
 
     List<PurchaseItem> findByPurchaseId(Long purchaseId);
 
+    boolean existsByVariantId(Long variantId);
+
+    boolean existsByVariantProductId(Long productId);
+
     List<PurchaseItem> findByVariantId(Long variantId);
 }

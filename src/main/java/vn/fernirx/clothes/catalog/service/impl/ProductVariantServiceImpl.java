@@ -12,7 +12,9 @@ import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.repository.ProductVariantRepository;
 import vn.fernirx.clothes.catalog.service.ProductVariantService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.inventory.repository.PurchaseItemRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,7 @@ public class ProductVariantServiceImpl implements ProductVariantService {
 
     private final ProductVariantRepository productVariantRepository;
     private final ProductRepository productRepository;
+    private final PurchaseItemRepository purchaseItemRepository;
     private final ProductVariantMapper productVariantMapper;
 
     @Override
@@ -82,6 +85,9 @@ public class ProductVariantServiceImpl implements ProductVariantService {
     @Transactional
     public void delete(Long id) {
         ProductVariant variant = findVariantById(id);
+        if (purchaseItemRepository.existsByVariantId(id)) {
+            throw new ResourceInUseException("ProductVariant");
+        }
         productVariantRepository.delete(variant);
     }
 

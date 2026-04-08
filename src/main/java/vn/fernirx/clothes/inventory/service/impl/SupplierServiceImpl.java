@@ -6,7 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.inventory.repository.PurchaseRepository;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 import vn.fernirx.clothes.inventory.dto.request.SupplierRequest;
@@ -22,6 +24,7 @@ import vn.fernirx.clothes.inventory.service.SupplierService;
 public class SupplierServiceImpl implements SupplierService {
 
     private final SupplierRepository supplierRepository;
+    private final PurchaseRepository purchaseRepository;
     private final SupplierMapper supplierMapper;
 
     @Override
@@ -72,6 +75,9 @@ public class SupplierServiceImpl implements SupplierService {
     public void delete(Long id) {
         if (!supplierRepository.existsById(id)) {
             throw new ResourceNotFoundException("Supplier");
+        }
+        if (purchaseRepository.existsBySupplierId(id)) {
+            throw new ResourceInUseException("Supplier");
         }
         supplierRepository.deleteById(id);
     }

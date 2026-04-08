@@ -11,5 +11,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     boolean existsByPurchaseCode(String purchaseCode);
 
+    boolean existsBySupplierId(Long supplierId);
+
     Page<Purchase> findBySupplierIdOrderByCreatedAtDesc(Long supplierId, Pageable pageable);
 }

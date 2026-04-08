@@ -59,11 +59,10 @@ public class PurchaseServiceImpl implements PurchaseService {
     @Transactional
     public PurchaseResponse create(PurchaseRequest request) {
         if (purchaseRepository.existsByPurchaseCode(request.getPurchaseCode())) {
-            throw new ResourceAlreadyExistsException("Purchase with code '" + request.getPurchaseCode() + "'");
+            throw new ResourceAlreadyExistsException(request.getPurchaseCode());
         }
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier"));
-
+                .orElseThrow(() -> new ResourceNotFoundException(""+request.getSupplierId()));
         Purchase purchase = purchaseMapper.toEntity(request);
         purchase.setSupplier(supplier);
 
@@ -79,6 +78,10 @@ public class PurchaseServiceImpl implements PurchaseService {
     public PurchaseResponse update(Long id, PurchaseRequest request) {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase"));
+
+        if (purchase.getStatus() != PurchaseStatus.DRAFT) {
+            throw new ResourceInUseException("Purchase");
+        }
 
         if (!purchase.getPurchaseCode().equals(request.getPurchaseCode())
                 && purchaseRepository.existsByPurchaseCode(request.getPurchaseCode())) {
@@ -105,7 +108,7 @@ public class PurchaseServiceImpl implements PurchaseService {
         Purchase purchase = purchaseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Purchase"));
         if (purchase.getStatus() != PurchaseStatus.DRAFT) {
-            throw new ResourceInUseException("Purchase with id " + id + " (only DRAFT purchases can be deleted)");
+            throw new ResourceInUseException("Purchase");
         }
         purchaseRepository.delete(purchase);
     }

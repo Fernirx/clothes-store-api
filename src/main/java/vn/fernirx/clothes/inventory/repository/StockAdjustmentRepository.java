@@ -9,5 +9,9 @@ import vn.fernirx.clothes.inventory.entity.StockAdjustment;
 @Repository
 public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment, Long> {
 
+    boolean existsByCode(String code);
+
+    boolean existsByCodeAndIdNot(String code, Long id);
+
     Page<StockAdjustment> findAll(Pageable pageable);
 }

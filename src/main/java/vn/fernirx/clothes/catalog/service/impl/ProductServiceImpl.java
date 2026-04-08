@@ -16,7 +16,9 @@ import vn.fernirx.clothes.catalog.repository.CategoryRepository;
 import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.service.ProductService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.inventory.repository.PurchaseItemRepository;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 
@@ -31,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final CategoryRepository categoryRepository;
+    private final PurchaseItemRepository purchaseItemRepository;
     private final ProductMapper productMapper;
 
     @Override
@@ -108,6 +111,9 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void delete(Long id) {
         Product product = findProductById(id);
+        if (purchaseItemRepository.existsByVariantProductId(id)) {
+            throw new ResourceInUseException("Product");
+        }
         productRepository.delete(product);
     }
 

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.catalog.entity.ProductVariant;
 import vn.fernirx.clothes.catalog.repository.ProductVariantRepository;
+import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
@@ -53,6 +54,9 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     @Override
     @Transactional
     public StockAdjustmentResponse create(StockAdjustmentRequest request) {
+        if (adjustmentRepository.existsByCode(request.getCode())) {
+            throw new ResourceAlreadyExistsException("StockAdjustment with code '" + request.getCode() + "'");
+        }
         StockAdjustment adjustment = adjustmentMapper.toEntity(request);
         List<StockAdjustmentItem> items = buildItems(request.getItems(), adjustment);
         adjustment.getItems().addAll(items);
@@ -64,6 +68,13 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
     public StockAdjustmentResponse update(Long id, StockAdjustmentRequest request) {
         StockAdjustment adjustment = adjustmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
+
+        if (adjustment.getStatus() != AdjustmentStatus.DRAFT) {
+            throw new ResourceInUseException("StockAdjustment");
+        }
+        if (adjustmentRepository.existsByCodeAndIdNot(request.getCode(), id)) {
+            throw new ResourceAlreadyExistsException("StockAdjustment with code '" + request.getCode() + "'");
+        }
 
         adjustmentMapper.updateFromRequest(request, adjustment);
 
@@ -80,7 +91,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
         StockAdjustment adjustment = adjustmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
         if (adjustment.getStatus() != AdjustmentStatus.DRAFT) {
-            throw new ResourceInUseException("StockAdjustment with id " + id + " (only DRAFT adjustments can be deleted)");
+            throw new ResourceInUseException("StockAdjustment");
         }
         adjustmentRepository.delete(adjustment);
     }
