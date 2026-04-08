@@ -10,8 +10,10 @@ import vn.fernirx.clothes.catalog.dto.response.BrandResponse;
 import vn.fernirx.clothes.catalog.entity.Brand;
 import vn.fernirx.clothes.catalog.mapper.BrandMapper;
 import vn.fernirx.clothes.catalog.repository.BrandRepository;
+import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.service.BrandService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
@@ -22,6 +24,7 @@ import vn.fernirx.clothes.common.util.PaginationUtil;
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
     private final BrandMapper brandMapper;
 
     @Override
@@ -76,6 +79,9 @@ public class BrandServiceImpl implements BrandService {
     @Transactional
     public void delete(Long id) {
         Brand brand = findBrandById(id);
+        if (productRepository.existsByBrandId(id)) {
+            throw new ResourceInUseException("Brand");
+        }
         brandRepository.delete(brand);
     }
 

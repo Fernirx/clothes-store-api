@@ -10,8 +10,10 @@ import vn.fernirx.clothes.catalog.dto.response.CategoryResponse;
 import vn.fernirx.clothes.catalog.entity.Category;
 import vn.fernirx.clothes.catalog.mapper.CategoryMapper;
 import vn.fernirx.clothes.catalog.repository.CategoryRepository;
+import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.service.CategoryService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
     private final CategoryMapper categoryMapper;
 
     @Override
@@ -92,6 +95,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delete(Long id) {
         Category category = findCategoryById(id);
+        if (categoryRepository.existsByParentId(id)) {
+            throw new ResourceInUseException("Category");
+        }
+        if (productRepository.existsByCategoriesId(id)) {
+            throw new ResourceInUseException("Category");
+        }
         categoryRepository.delete(category);
     }
 
