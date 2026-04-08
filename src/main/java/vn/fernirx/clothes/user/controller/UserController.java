@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -17,10 +19,15 @@ import vn.fernirx.clothes.user.service.UserService;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "Users API", description = "Các API người dùng")
 public class UserController {
     private final UserService userService;
 
     @GetMapping
+    @Operation(
+            summary = "Lấy danh sách người dùng",
+            description = "Lấy danh sách tất cả người dùng với phân trang, sắp xếp và lọc theo field"
+    )
     public ResponseEntity<SuccessResponse<PageResponse<UserResponse>>> getAll(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
@@ -35,6 +42,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Lấy chi tiết người dùng",
+            description = "Lấy chi tiết một người dùng theo ID"
+    )
     public ResponseEntity<SuccessResponse<UserResponse>> getUserById(@PathVariable Long id) {
         UserResponse userResponse = userService.getUserById(id);
         return ResponseEntity.ok(SuccessResponse.of(
@@ -44,6 +55,10 @@ public class UserController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Tạo người dùng mới",
+            description = "Tạo một người dùng mới"
+    )
     public ResponseEntity<SuccessResponse<UserResponse>> createUser(
             @Valid @RequestBody CreateUserRequest createUserRequest) {
         UserResponse userResponse = userService.createUser(createUserRequest);
@@ -52,12 +67,20 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Xóa người dùng",
+            description = "Thực hiện xóa mềm (soft delete) người dùng theo ID"
+    )
     public ResponseEntity<SuccessResponse<Void>> deleteUserById(@PathVariable Long id) {
         userService.softDeleteById(id);
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
     }
 
     @PatchMapping("/{id}")
+    @Operation(
+            summary = "Cập nhật người dùng",
+            description = "Cập nhật thông tin người dùng theo ID. Chỉ cập nhật các field được truyền lên"
+    )
     public ResponseEntity<SuccessResponse<UserResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UpdateUserRequest updateUserRequest) {
@@ -69,6 +92,10 @@ public class UserController {
     }
 
     @PostMapping("/{id}/reset-password")
+    @Operation(
+            summary = "Reset mật khẩu",
+            description = "Đặt lại mật khẩu cho người dùng theo ID. Sẽ sinh mật khẩu mới và gửi email"
+    )
     public ResponseEntity<SuccessResponse<Void>> resetPassword(@PathVariable Long id) {
         userService.resetPassword(id);
         return ResponseEntity.ok(SuccessResponse.of("Password reset successfully"));

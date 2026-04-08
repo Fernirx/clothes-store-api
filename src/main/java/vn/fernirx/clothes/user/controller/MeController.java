@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,11 +23,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users/me")
 @RequiredArgsConstructor
+@Tag(name = "My Profile API", description = "Các API thao tác thông tin cá nhân của người dùng hiện tại")
 public class MeController {
     private final UserProfileService userProfileService;
     private final UserService userService;
 
     @GetMapping
+    @Operation(
+            summary = "Lấy thông tin cá nhân",
+            description = "Lấy thông tin profile của người dùng hiện tại"
+    )
     public ResponseEntity<SuccessResponse<UserProfileResponse>> getUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserProfileResponse data = userProfileService.getMyProfile(userDetails.getId());
@@ -36,6 +43,10 @@ public class MeController {
     }
 
     @PatchMapping
+    @Operation(
+            summary = "Cập nhật thông tin cá nhân",
+            description = "Cập nhật thông tin cơ bản của người dùng hiện tại"
+    )
     public ResponseEntity<SuccessResponse<UserProfileResponse>> updateUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateProfileRequest updateProfileRequest) {
@@ -48,6 +59,10 @@ public class MeController {
     }
 
     @PatchMapping("/shipping")
+    @Operation(
+            summary = "Cập nhật địa chỉ giao hàng",
+            description = "Cập nhật thông tin giao hàng mặc định của người dùng hiện tại"
+    )
     public ResponseEntity<SuccessResponse<UserProfileResponse>> updateShipping(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateShippingRequest updateShippingRequest) {
@@ -60,6 +75,10 @@ public class MeController {
     }
 
     @PatchMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Cập nhật avatar",
+            description = "Upload và cập nhật ảnh đại diện cho người dùng hiện tại (multipart/form-data)"
+    )
     public ResponseEntity<SuccessResponse<Map<String, String>>> updateUserAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart("avatar") MultipartFile avatar) {
@@ -71,6 +90,10 @@ public class MeController {
     }
 
     @PostMapping("/change-password")
+    @Operation(
+            summary = "Đổi mật khẩu",
+            description = "Người dùng tự đổi mật khẩu bằng cách cung cấp mật khẩu cũ và mật khẩu mới"
+    )
     public ResponseEntity<SuccessResponse<Void>> changePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
