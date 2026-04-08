@@ -17,12 +17,12 @@ import vn.fernirx.clothes.user.service.UserProfileService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users/me")
+@RequestMapping("/users/me/profile")
 @RequiredArgsConstructor
 public class UserProfileController {
     private final UserProfileService userProfileService;
 
-    @GetMapping("/profile")
+    @GetMapping()
     public ResponseEntity<SuccessResponse<UserProfileResponse>> getUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         UserProfileResponse data = userProfileService.getMyProfile(userDetails.getId());
@@ -32,7 +32,7 @@ public class UserProfileController {
         ));
     }
 
-    @PatchMapping("/profile")
+    @PatchMapping()
     public ResponseEntity<SuccessResponse<UserProfileResponse>> updateUserProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdateProfileRequest updateProfileRequest) {
@@ -44,7 +44,7 @@ public class UserProfileController {
         ));
     }
 
-    @PatchMapping("/profile/shipping")
+    @PatchMapping("/shipping")
     public ResponseEntity<SuccessResponse<UserProfileResponse>> updateShipping(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdateShippingRequest updateShippingRequest) {
@@ -56,7 +56,7 @@ public class UserProfileController {
         ));
     }
 
-    @PatchMapping(value = "/profile/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<Map<String, String>>> updateUserAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestPart MultipartFile avatar){
