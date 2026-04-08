@@ -182,6 +182,31 @@ spring:
       # Thời gian tối đa gửi dữ liệu
       mail.smtp.write-timeout: ${MAIL_WRITE_TIMEOUT:5000}
 
+  security:
+    oauth2:
+      client:
+        registration:
+          # =======================
+          # Google OAuth2 Client
+          # =======================
+          google:
+            # Client ID do Google cấp khi tạo OAuth app
+            client-id: ${GOOGLE_CLIENT_ID:changeme-google-client-id}
+
+            # Client Secret do Google cấp
+            client-secret: ${GOOGLE_CLIENT_SECRET:changeme-google-client-secret}
+
+            # Quyền truy cập yêu cầu từ người dùng
+            # email → email user, profile → tên, ảnh đại diện
+            scope: ${GOOGLE_SCOPES:email,profile}
+
+            # URL Google redirect về sau khi user login thành công
+            # {baseUrl} sẽ được Spring Boot tự resolve thành scheme + host + port của app
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+
+            # Tên client hiển thị trong logs hoặc UI nếu cần
+            client-name: Google
+
 # == SERVER ==============================================
 server:
   # Port lắng nghe HTTP request
