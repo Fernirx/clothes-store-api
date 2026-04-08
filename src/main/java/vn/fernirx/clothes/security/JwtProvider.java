@@ -41,6 +41,26 @@ public class JwtProvider {
         );
     }
 
+    public String generateAccessTokenForOAuth2(long id, String email, Set<String> authorities) {
+        return createToken(
+                SecurityConstants.JWT_ACCESS_TOKEN,
+                id,
+                email,
+                authorities,
+                jwtProperties.getAccess().getExpiration()
+        );
+    }
+
+    public String generateRefreshTokenForOAuth2(long id, String email) {
+        return createToken(
+                SecurityConstants.JWT_REFRESH_TOKEN,
+                id,
+                email,
+                null,
+                jwtProperties.getRefresh().getExpiration()
+        );
+    }
+
     public String generateRefreshToken(CustomUserDetails userDetails) {
         return createToken(
                 SecurityConstants.JWT_REFRESH_TOKEN,

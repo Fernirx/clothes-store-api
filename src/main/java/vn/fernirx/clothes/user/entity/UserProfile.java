@@ -3,8 +3,7 @@ package vn.fernirx.clothes.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import vn.fernirx.clothes.common.entity.BaseEntity;
@@ -13,6 +12,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "user_profiles", indexes = {
         @Index(name = "idx_profiles_name",
@@ -20,6 +20,8 @@ import java.time.LocalDate;
         @Index(name = "idx_profiles_shipping_phone",
                 columnList = "shipping_phone")}, uniqueConstraints = {@UniqueConstraint(name = "user_id_UNIQUE",
         columnNames = {"user_id"})})
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfile extends BaseEntity {
     @Size(max = 100)
     @NotNull

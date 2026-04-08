@@ -3,8 +3,7 @@ package vn.fernirx.clothes.user.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
@@ -16,6 +15,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "users", indexes = {
         @Index(name = "idx_users_provider",
@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
         uniqueConstraints = {@UniqueConstraint(name = "email_UNIQUE", columnNames = {"email"})})
 @SQLDelete(sql = "UPDATE users SET deleted = true, is_active = false WHERE id = ?")
 @SQLRestriction("deleted = false")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends BaseEntity {
     @Size(max = 100)
     @NotNull

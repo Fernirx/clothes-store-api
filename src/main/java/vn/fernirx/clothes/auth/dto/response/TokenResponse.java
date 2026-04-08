@@ -1,4 +1,9 @@
 package vn.fernirx.clothes.auth.dto.response;
 
-public record TokenResponse() {
-}
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record TokenResponse(
+        String accessToken,
+        String refreshToken
+) {}
