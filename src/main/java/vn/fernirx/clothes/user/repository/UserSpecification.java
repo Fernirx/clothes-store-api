@@ -11,7 +11,7 @@ public class UserSpecification {
     }
 
     public static Specification<User> hasProvider(String provider) {
-        return (root, query, cb) ->  provider == null ? null
+        return (root, query, cb) -> provider == null ? null
                 : cb.equal(root.get("provider"), provider);
     }
 

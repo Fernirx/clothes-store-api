@@ -62,7 +62,7 @@ public class MeController {
     @PatchMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<SuccessResponse<Map<String, String>>> updateUserAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestPart("avatar") MultipartFile avatar){
+            @RequestPart("avatar") MultipartFile avatar) {
         String url = userProfileService.updateAvatar(userDetails.getId(), avatar);
         return ResponseEntity.ok(SuccessResponse.of(
                 "Avatar updated successfully",

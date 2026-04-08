@@ -4,8 +4,6 @@ import jakarta.validation.constraints.Size;
 import vn.fernirx.clothes.common.annotation.validation.NullableNotBlank;
 import vn.fernirx.clothes.common.annotation.validation.ValidPhone;
 
-import java.io.Serializable;
-
 /**
  * DTO for {@link vn.fernirx.clothes.user.entity.UserProfile}
  */

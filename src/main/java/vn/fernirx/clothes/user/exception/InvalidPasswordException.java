@@ -4,7 +4,7 @@ import vn.fernirx.clothes.common.enums.ErrorCode;
 import vn.fernirx.clothes.common.exception.AppException;
 
 public class InvalidPasswordException extends AppException {
-    public InvalidPasswordException(ErrorCode code, String message)  {
+    public InvalidPasswordException(ErrorCode code, String message) {
         super(code, message);
     }
 

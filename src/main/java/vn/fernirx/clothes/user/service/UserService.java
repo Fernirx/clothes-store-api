@@ -9,10 +9,16 @@ import vn.fernirx.clothes.user.dto.response.UserResponse;
 
 public interface UserService {
     PageResponse<UserResponse> getAll(Integer page, Integer size, String sortBy, String sortDir, UserFilterRequest filter);
+
     UserResponse getUserById(Long id);
+
     UserResponse createUser(CreateUserRequest createUserRequest);
+
     void softDeleteById(Long id);
+
     UserResponse updateUser(Long id, UpdateUserRequest request);
+
     void resetPassword(Long id);
+
     void changePassword(Long id, ChangePasswordRequest request);
 }

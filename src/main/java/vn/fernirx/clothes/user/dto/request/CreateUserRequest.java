@@ -7,8 +7,6 @@ import jakarta.validation.constraints.Size;
 import vn.fernirx.clothes.common.annotation.validation.StrongPassword;
 import vn.fernirx.clothes.common.enums.UserRole;
 
-import java.io.Serializable;
-
 /**
  * DTO for {@link vn.fernirx.clothes.user.entity.User}
  */
