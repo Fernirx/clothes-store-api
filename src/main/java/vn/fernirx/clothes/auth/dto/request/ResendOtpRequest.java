@@ -1,0 +1,12 @@
+package vn.fernirx.clothes.auth.dto.request;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record ResendOtpRequest(
+        @NotBlank
+        @Size(max = 100)
+        @Email
+        String email
+) {}

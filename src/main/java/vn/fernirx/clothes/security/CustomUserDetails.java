@@ -1,6 +1,7 @@
 package vn.fernirx.clothes.security;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,6 +11,7 @@ import java.util.Collection;
 
 @NullMarked
 @Getter
+@Builder
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
     private final Long id;
