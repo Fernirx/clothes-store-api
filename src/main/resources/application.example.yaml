@@ -207,6 +207,20 @@ spring:
             # Tên client hiển thị trong logs hoặc UI nếu cần
             client-name: Google
 
+  data:
+    redis:
+      # Địa chỉ Redis (localhost / redis / IP server)
+      host: ${REDIS_HOST:localhost}
+
+      # Port Redis (mặc định 6379)
+      port: ${REDIS_PORT:6379}
+
+      # Password (nếu có, nội bộ có thể để trống)
+      password: ${REDIS_PASSWORD:}
+
+      # Thời gian chờ phản hồi từ Redis (vd: 2000ms = 2s)
+      timeout: 2000ms
+
 # == SERVER ==============================================
 server:
   # Port lắng nghe HTTP request
@@ -305,3 +319,19 @@ application:
 
       # API Secret dùng để ký request (bảo mật)
       apiSecret: ${CLOUDINARY_API_SECRET:your-api-secret}
+
+  # -- OTP (One-Time Password) --
+  otp:
+    # Độ dài của mã OTP (số ký tự)
+    length: ${OTP_LENGTH:6}
+
+    # Thời gian hết hạn của OTP (phút)
+    ttl: ${OTP_TTL:5}
+
+    # Số lần nhập sai tối đa trước khi OTP bị vô hiệu hóa
+    # Khi vượt quá giới hạn này, OTP sẽ bị xóa khỏi hệ thống
+    max-attempts: ${OTP_MAX_ATTEMPTS:5}
+
+    # Thời gian chờ giữa các lần gửi lại OTP (giây)
+    # Dùng để chống spam gửi OTP liên tục
+    resend-cooldown: ${OTP_RESEND_COOLDOWN:60}

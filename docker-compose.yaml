@@ -8,6 +8,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "${HOST_PORT}:${SERVER_PORT}"
     env_file:
@@ -38,9 +40,28 @@ services:
       retries: 5
       start_period: 30s
 
+  redis:
+    image: redis:7-alpine
+    container_name: clothes-redis
+    restart: always
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - clothes_redis_data:/data
+    networks:
+      - clothes-net
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   clothes_mysql_data:
     name: clothes_mysql_data
+  clothes_redis_data:
+    name: clothes_redis_data
 
 networks:
   clothes-net:
