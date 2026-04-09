@@ -33,13 +33,13 @@ public class MailService {
     }
 
     @Async
-    public void sendVerifyEmailOtp(String to, String username, String otpCode, Object expiryMinutes) {
+    public void sendVerifyEmailOtp(String to, String username, String otpCode, int expiryMinutes) {
         String subject = "Clothes - Mã Xác Thực Email";
         Context context = new Context();
         context.setVariable("username", username);
         context.setVariable("otpCode", otpCode);
         context.setVariable("expiryMinutes", expiryMinutes);
-        String htmlContent = templateEngine.process("mail/verify-email-otp", context);
+        String htmlContent = templateEngine.process ("mail/verify-email-otp", context);
         sendMail(to, subject, htmlContent);
     }
 
