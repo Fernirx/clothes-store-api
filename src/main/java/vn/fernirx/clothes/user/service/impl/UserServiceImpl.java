@@ -87,6 +87,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void restoneById(Long id) {
+        User user = userRepository.findByIdIncludeDeleted(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        user.setDeleted(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void hardDeleteById(Long id) {
+        User user = userRepository.findByIdIncludeDeleted(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+        userRepository.hardDeleteById(user.getId());
+    }
+
+    @Override
+    @Transactional
     public UserResponse updateUser(Long id, UpdateUserRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
