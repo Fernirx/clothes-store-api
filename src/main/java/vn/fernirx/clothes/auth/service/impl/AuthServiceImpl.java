@@ -10,11 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.fernirx.clothes.auth.dto.request.LoginRequest;
-import vn.fernirx.clothes.auth.dto.request.RegisterRequest;
-import vn.fernirx.clothes.auth.dto.request.ResendOtpRequest;
-import vn.fernirx.clothes.auth.dto.request.VerifyOtpRequest;
+import vn.fernirx.clothes.auth.dto.request.*;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
+import vn.fernirx.clothes.auth.dto.response.UserInfo;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.auth.exception.AccountDisabledException;
 import vn.fernirx.clothes.auth.exception.InvalidCredentialsException;
@@ -25,6 +23,7 @@ import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.security.JwtProvider;
+import vn.fernirx.clothes.security.SecurityUtils;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
@@ -65,12 +64,32 @@ public class AuthServiceImpl implements AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String accessToken = jwtProvider.generateAccessToken(userDetails);
         String refreshToken = jwtProvider.generateRefreshToken(userDetails);
-        return new TokenResponse(accessToken, refreshToken);
+        UserInfo userResponse = new UserInfo(
+                userDetails.getId(),
+                userDetails.getEmail(),
+                SecurityUtils.getAuthorities(userDetails)
+        );
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
+    }
+
+    @Override
+    public TokenResponse refreshToken(RefreshTokenRequest request) {
+        String email = jwtProvider.extractEmail(request.refreshToken());
+        CustomUserDetails userDetails =
+                (CustomUserDetails) userDetailsService.loadUserByUsername(email);
+        String accessToken = jwtProvider.refreshAccessToken(request.refreshToken(), userDetails);
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
     @Override
     public void register(RegisterRequest request) {
-        if (userRepository.existsByEmailIncludeDeleted(request.email())) {
+        if (userRepository.existsByEmailIncludeDeleted(request.email()) == 1) {
             throw new ResourceAlreadyExistsException("User");
         }
 
@@ -98,17 +117,20 @@ public class AuthServiceImpl implements AuthService {
         otpService.verifyOtp(request.email(), request.otp());
         user.setVerified(true);
         userRepository.save(user);
-        CustomUserDetails userDetails = CustomUserDetails.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .authorities(
-                        Collections.singleton(
-                                new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                )
-                .build();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) userDetailsService.loadUserByUsername(request.email());
         String accessToken = jwtProvider.generateAccessToken(userDetails);
         String refreshToken = jwtProvider.generateRefreshToken(userDetails);
-        return new TokenResponse(accessToken, refreshToken);
+        UserInfo userResponse = new UserInfo(
+                userDetails.getId(),
+                userDetails.getEmail(),
+                SecurityUtils.getAuthorities(userDetails)
+        );
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
     }
 
     @Override

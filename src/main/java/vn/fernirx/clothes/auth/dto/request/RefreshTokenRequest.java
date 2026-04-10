@@ -1,4 +1,8 @@
 package vn.fernirx.clothes.auth.dto.request;
 
-public record RefreshTokenRequest() {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record RefreshTokenRequest(
+        @NotBlank
+        String refreshToken
+) {}

@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vn.fernirx.clothes.auth.dto.request.LoginRequest;
-import vn.fernirx.clothes.auth.dto.request.RegisterRequest;
-import vn.fernirx.clothes.auth.dto.request.ResendOtpRequest;
-import vn.fernirx.clothes.auth.dto.request.VerifyOtpRequest;
+import vn.fernirx.clothes.auth.dto.request.*;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
 import vn.fernirx.clothes.auth.service.AuthService;
 import vn.fernirx.clothes.common.response.SuccessResponse;
@@ -27,6 +24,16 @@ public class AuthController {
         TokenResponse data = authService.login(loginRequest);
         return ResponseEntity.ok(SuccessResponse.of(
                 "Login success",
+                data
+        ));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<SuccessResponse<TokenResponse>> refreshToken(
+            @Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        TokenResponse data = authService.refreshToken(refreshTokenRequest);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Refresh token success",
                 data
         ));
     }
