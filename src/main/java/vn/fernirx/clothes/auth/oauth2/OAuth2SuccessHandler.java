@@ -11,10 +11,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
+import vn.fernirx.clothes.auth.dto.response.UserInfo;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.security.JwtProvider;
+import vn.fernirx.clothes.security.SecurityUtils;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.exception.UserDeletedException;
@@ -76,7 +78,16 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 user.getId(),
                 user.getEmail()
         );
-        TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
+        UserInfo userResponse = new UserInfo(
+                user.getId(),
+                user.getEmail(),
+                Set.of("ROLE_" + user.getRole())
+        );
+        TokenResponse tokenResponse = TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
 
         clearAuthenticationAttributes(request);
 
