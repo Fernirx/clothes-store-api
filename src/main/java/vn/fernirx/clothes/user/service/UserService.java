@@ -16,7 +16,7 @@ public interface UserService {
 
     void softDeleteById(Long id);
 
-    void restoneById(Long id);
+    void restoreById(Long id);
 
     void hardDeleteById(Long id);
 

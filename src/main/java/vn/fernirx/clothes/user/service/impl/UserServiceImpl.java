@@ -88,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void restoneById(Long id) {
+    public void restoreById(Long id) {
         User user = userRepository.findByIdIncludeDeleted(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         user.setDeleted(false);

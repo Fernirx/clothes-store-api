@@ -92,8 +92,8 @@ public class UserController {
             description = "Thực hiện khôi phục người dùng theo ID"
     )
     public ResponseEntity<SuccessResponse<Void>> restoreById(@PathVariable Long id) {
-        userService.restoneById(id);
-        return ResponseEntity.ok(SuccessResponse.of("User restone successfully"));
+        userService.restoreById(id);
+        return ResponseEntity.ok(SuccessResponse.of("User restored successfully"));
     }
 
     @PatchMapping("/{id}")
