@@ -7,9 +7,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.fernirx.clothes.auth.dto.OTPData;
+import vn.fernirx.clothes.auth.enums.OtpPurpose;
 import vn.fernirx.clothes.auth.exception.OTPException;
 import vn.fernirx.clothes.common.exception.CacheSerializationException;
-import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.config.OTPProperties;
 import vn.fernirx.clothes.integration.message.MailService;
 
@@ -27,11 +27,11 @@ public class OtpService {
     private final PasswordEncoder passwordEncoder;
     private final OTPProperties otpProperties;
 
-    private static final String OTP_KEY      = "otp:%s";
-    private static final String COOLDOWN_KEY = "otp:cd:%s";
+    private static final String OTP_KEY      = "otp:%s:%s";
+    private static final String COOLDOWN_KEY = "otp:cd:%s:%s";
 
-    public void sendOtp(String email, String name) {
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(COOLDOWN_KEY.formatted(email))))
+    public void sendOtp(String email, String name, OtpPurpose purpose) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(COOLDOWN_KEY.formatted(purpose.name().toLowerCase(), email))))
             throw OTPException.resendCooldownExceeded();
 
         String rawOtp = generateOtp();
@@ -41,14 +41,16 @@ public class OtpService {
                 .lastSentAt(Instant.now())
                 .build();
 
-        set(OTP_KEY.formatted(email), otpData, otpProperties.getTtl(), TimeUnit.MINUTES);
-        redisTemplate.opsForValue().set(COOLDOWN_KEY.formatted(email), "1", otpProperties.getResendCooldown(), TimeUnit.SECONDS);
+        set(OTP_KEY.formatted(purpose.name().toLowerCase(), email), otpData, otpProperties.getTtl(), TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(COOLDOWN_KEY.formatted(purpose.name().toLowerCase(), email), "1", otpProperties.getResendCooldown(), TimeUnit.SECONDS);
 
-        mailService.sendVerifyEmailOtp(email, name, rawOtp, otpProperties.getTtl());
+        if (purpose == OtpPurpose.REGISTER)
+            mailService.sendVerifyEmailOtp(email, name, rawOtp, otpProperties.getTtl());
+        else mailService.sendForgotPasswordOtp(email, name, rawOtp, otpProperties.getTtl());
     }
 
-    public void verifyOtp(String email, String rawOtp) {
-        String otpKey = OTP_KEY.formatted(email);
+    public void verifyOtp(String email, String rawOtp, OtpPurpose purpose) {
+        String otpKey = OTP_KEY.formatted(purpose.name().toLowerCase(), email);
         OTPData otpData = get(otpKey)
                 .orElseThrow(OTPException::validationFailed);
 

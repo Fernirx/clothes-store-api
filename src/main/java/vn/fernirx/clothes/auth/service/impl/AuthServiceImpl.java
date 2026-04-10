@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.auth.dto.request.*;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
 import vn.fernirx.clothes.auth.dto.response.UserInfo;
+import vn.fernirx.clothes.auth.enums.OtpPurpose;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.auth.exception.AccountDisabledException;
 import vn.fernirx.clothes.auth.exception.InvalidCredentialsException;
@@ -107,14 +108,14 @@ public class AuthServiceImpl implements AuthService {
                 .user(user)
                 .build();
         userProfileRepository.save(userProfile);
-        otpService.sendOtp(request.email(), request.firstName());
+        otpService.sendOtp(request.email(), request.firstName(), OtpPurpose.REGISTER);
     }
 
     @Override
     public TokenResponse verifyOtp(VerifyOtpRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
-        otpService.verifyOtp(request.email(), request.otp());
+        otpService.verifyOtp(request.email(), request.otp(), OtpPurpose.REGISTER);
         user.setVerified(true);
         userRepository.save(user);
         CustomUserDetails userDetails =
@@ -139,6 +140,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         UserProfile userProfile = userProfileRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
-        otpService.sendOtp(request.email(), userProfile.getFirstName());
+        otpService.sendOtp(request.email(), userProfile.getFirstName(), OtpPurpose.REGISTER);
     }
 }
