@@ -16,6 +16,10 @@ public interface UserService {
 
     void softDeleteById(Long id);
 
+    void restoreById(Long id);
+
+    void hardDeleteById(Long id);
+
     UserResponse updateUser(Long id, UpdateUserRequest request);
 
     void resetPassword(Long id);

@@ -76,6 +76,26 @@ public class UserController {
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
     }
 
+    @DeleteMapping("/{id}/hard")
+    @Operation(
+            summary = "Xóa cứng người dùng",
+            description = "Thực hiện xóa cứng người dùng theo ID"
+    )
+    public ResponseEntity<SuccessResponse<Void>> hardDeleteById(@PathVariable Long id) {
+        userService.hardDeleteById(id);
+        return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
+    }
+
+    @PatchMapping("/{id}/restore")
+    @Operation(
+            summary = "Khôi phục người dùng đã xóa mềm",
+            description = "Thực hiện khôi phục người dùng theo ID"
+    )
+    public ResponseEntity<SuccessResponse<Void>> restoreById(@PathVariable Long id) {
+        userService.restoreById(id);
+        return ResponseEntity.ok(SuccessResponse.of("User restored successfully"));
+    }
+
     @PatchMapping("/{id}")
     @Operation(
             summary = "Cập nhật người dùng",

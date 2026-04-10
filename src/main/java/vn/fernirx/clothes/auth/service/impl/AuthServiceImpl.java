@@ -70,7 +70,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmailIncludeDeleted(request.email())) {
             throw new ResourceAlreadyExistsException("User");
         }
 

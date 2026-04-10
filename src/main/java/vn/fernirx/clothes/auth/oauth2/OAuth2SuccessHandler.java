@@ -17,6 +17,7 @@ import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.security.JwtProvider;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
+import vn.fernirx.clothes.user.exception.UserDeletedException;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
 
@@ -40,7 +41,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String lastName  = oAuth2User.getAttribute("family_name");
         String email = oAuth2User.getAttribute("email");
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIncludeDeleted(email)
+                .map(u -> {
+                    if (u.isDeleted())
+                        throw new UserDeletedException();
+                    return u;
+                })
                 .orElseGet(() -> {
                     User newUser = User.builder()
                             .email(email)
