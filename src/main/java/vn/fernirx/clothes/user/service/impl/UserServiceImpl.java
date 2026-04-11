@@ -54,6 +54,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    public PageResponse<UserResponse> getDeletedTrue(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir) {
+        Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, sortDir);
+        Page<UserResponse> userResponses = userRepository.findAllDeletedTrue(pageable)
+                .map(userMapper::toDto);
+        return PageResponse.of(userResponses);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User"));

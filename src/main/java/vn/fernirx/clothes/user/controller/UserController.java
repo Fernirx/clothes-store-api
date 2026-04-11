@@ -41,6 +41,23 @@ public class UserController {
         ));
     }
 
+    @GetMapping("/trash")
+    @Operation(
+            summary = "Lấy danh sách người dùng đã xóa",
+            description = "Lấy danh sách tất cả người dùng đã xóa với phân trang, sắp xếp"
+    )
+    public ResponseEntity<SuccessResponse<PageResponse<UserResponse>>> getDeletedTrue(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir) {
+        PageResponse<UserResponse> data = userService.getDeletedTrue(page, size, sortBy, sortDir);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Users retrieved successfully",
+                data
+        ));
+    }
+
     @GetMapping("/{id}")
     @Operation(
             summary = "Lấy chi tiết người dùng",
