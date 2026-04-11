@@ -1,6 +1,8 @@
 package vn.fernirx.clothes.user.repository;
 
 import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +13,12 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByEmail(String email);
+
+    @Query(
+            value = "SELECT * FROM users u WHERE u.deleted = true",
+            countQuery = "SELECT COUNT(*) FROM users u WHERE u.deleted = true",
+            nativeQuery = true)
+    Page<User> findAllDeletedTrue(Pageable pageable);
 
     @Query(value = "SELECT * FROM users u WHERE u.id = :id", nativeQuery = true)
     Optional<User> findByIdIncludeDeleted(@Param("id") Long id);
