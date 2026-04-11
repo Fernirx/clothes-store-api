@@ -1,5 +1,6 @@
 package vn.fernirx.clothes.auth.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,7 @@ public class PasswordController {
 
     @PostMapping("/forgot")
     public ResponseEntity<SuccessResponse<Void>> forgotPassword(
-            @RequestBody ForgotPasswordRequest request) {
+            @Valid @RequestBody ForgotPasswordRequest request) {
         passwordService.forgotPassword(request);
         return ResponseEntity.ok(
                 SuccessResponse.of("OTP sent to your email")
@@ -31,7 +32,7 @@ public class PasswordController {
 
     @PostMapping("/forgot/verify")
     public ResponseEntity<SuccessResponse<TokenResponse>> verifyForgotPassword(
-            @RequestBody VerifyOtpRequest request) {
+            @Valid @RequestBody VerifyOtpRequest request) {
         TokenResponse tokenResponse = passwordService.verifyForgotPassword(request);
         return ResponseEntity.ok(SuccessResponse.of(
                 "OTP verified successfully",
@@ -41,7 +42,7 @@ public class PasswordController {
 
     @PostMapping("/forgot/resend")
     public ResponseEntity<SuccessResponse<Void>> resendForgotPassword(
-            @RequestBody ResendOtpRequest request) {
+            @Valid @RequestBody ResendOtpRequest request) {
         passwordService.resendOtp(request);
         return ResponseEntity.ok(
                 SuccessResponse.of("OTP sent to your email")
@@ -50,7 +51,7 @@ public class PasswordController {
 
     @PostMapping("/forgot/reset")
     public ResponseEntity<SuccessResponse<Void>> resetPassword(
-            @RequestBody ResetPasswordRequest request) {
+            @Valid @RequestBody ResetPasswordRequest request) {
         passwordService.resetPassword(request);
         return ResponseEntity.ok(
                 SuccessResponse.of("Password reset successfully")
