@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +20,15 @@ import vn.fernirx.clothes.common.response.SuccessResponse;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth API", description = "Các API xác thực người dùng")
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Đăng nhập",
+            description = "Xác thực người dùng bằng email và mật khẩu, trả về access token và refresh token"
+    )
     public ResponseEntity<SuccessResponse<TokenResponse>> login(
             @Valid @RequestBody LoginRequest loginRequest) {
         TokenResponse data = authService.login(loginRequest);
@@ -32,6 +39,10 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
+    @Operation(
+            summary = "Làm mới token",
+            description = "Cấp mới access token và refresh token từ refresh token hợp lệ"
+    )
     public ResponseEntity<SuccessResponse<TokenResponse>> refreshToken(
             @Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         TokenResponse data = authService.refreshToken(refreshTokenRequest);
@@ -42,6 +53,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Đăng ký tài khoản",
+            description = "Tạo tài khoản mới và gửi OTP xác thực đến email"
+    )
     public ResponseEntity<SuccessResponse<Void>> register(
             @Valid @RequestBody RegisterRequest request) {
         authService.register(request);
@@ -50,6 +65,10 @@ public class AuthController {
     }
 
     @PostMapping("/verify-otp")
+    @Operation(
+            summary = "Xác thực OTP đăng ký",
+            description = "Xác thực mã OTP sau khi đăng ký, trả về access token và refresh token nếu thành công"
+    )
     public ResponseEntity<SuccessResponse<TokenResponse>> verifyOtp(
             @Valid @RequestBody VerifyOtpRequest request) {
         TokenResponse data = authService.verifyOtp(request);
@@ -60,6 +79,10 @@ public class AuthController {
     }
 
     @PostMapping("/resend-otp")
+    @Operation(
+            summary = "Gửi lại OTP đăng ký",
+            description = "Gửi lại mã OTP xác thực đến email khi đăng ký"
+    )
     public ResponseEntity<SuccessResponse<Void>> resendOtp(
             @Valid @RequestBody ResendOtpRequest request) {
         authService.resendOtp(request);
@@ -69,6 +92,10 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @Operation(
+            summary = "Đăng xuất",
+            description = "Vô hiệu hóa access token và refresh token hiện tại"
+    )
     public ResponseEntity<SuccessResponse<Void>> logout(
             HttpServletRequest request,
             @Valid @RequestBody LogoutRequest logoutRequest) {
