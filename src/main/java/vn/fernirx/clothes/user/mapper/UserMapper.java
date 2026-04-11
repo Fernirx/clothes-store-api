@@ -22,6 +22,7 @@ public interface UserMapper {
     User toUserFromCreateRequest(CreateUserRequest createUserRequest);
 
     @Mapping(target = "authorities", expression = "java(mapAuthorities(user.getRole()))")
+    @Mapping(target = "password", source = "passwordHash")
     CustomUserDetails toCustomUserDetails(User user);
 
     default Collection<GrantedAuthority> mapAuthorities(UserRole userRoles) {
