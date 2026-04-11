@@ -69,10 +69,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<SuccessResponse<Void>> logout(HttpServletRequest request) {
+    public ResponseEntity<SuccessResponse<Void>> logout(
+            HttpServletRequest request,
+            @Valid @RequestBody LogoutRequest logoutRequest) {
         String header = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER);
         if (StringUtils.hasText(header) && header.startsWith(SecurityConstants.BEARER_PREFIX)) {
-            authService.logout(header.substring(SecurityConstants.BEARER_PREFIX_LENGTH));
+            authService.logout(
+                    header.substring(SecurityConstants.BEARER_PREFIX_LENGTH),
+                    logoutRequest.refreshToken()
+            );
         }
         return ResponseEntity.ok(SuccessResponse.of("Logout success"));
     }

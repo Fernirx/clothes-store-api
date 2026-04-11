@@ -21,6 +21,7 @@ import vn.fernirx.clothes.auth.service.OtpService;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.common.exception.TokenException;
 import vn.fernirx.clothes.common.enums.BlacklistReason;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.security.JwtProvider;
@@ -78,6 +79,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenResponse refreshToken(RefreshTokenRequest request) {
+        if (tokenBlacklistService.isBlacklisted(request.refreshToken())) {
+            throw TokenException.invalid();
+        }
         String email = jwtProvider.extractEmail(request.refreshToken());
         CustomUserDetails userDetails =
                 (CustomUserDetails) userDetailsService.loadUserByUsername(email);
@@ -134,9 +138,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String accessToken) {
+    public void logout(String accessToken, String refreshToken) {
         long userId = Long.parseLong(jwtProvider.extractSubject(accessToken));
         tokenBlacklistService.blacklist(accessToken, userId, BlacklistReason.LOGOUT);
+        try {
+            tokenBlacklistService.blacklist(refreshToken, userId, BlacklistReason.LOGOUT);
+        } catch (Exception ignored) {
+            // refresh token hết hạn hoặc không hợp lệ — không cần blacklist
+        }
     }
 
     @Override

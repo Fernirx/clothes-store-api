@@ -14,5 +14,5 @@ public interface AuthService {
 
     void resendOtp(ResendOtpRequest request);
 
-    void logout(String accessToken);
+    void logout(String accessToken, String refreshToken);
 }
