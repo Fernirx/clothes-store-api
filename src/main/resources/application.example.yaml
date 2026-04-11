@@ -255,6 +255,10 @@ server:
 application:
   # -- Security --
   security:
+    admin:
+      email: ${ADMIN_EMAIL:admin@example.com}
+      password: ${ADMIN_PASSWORD:password}
+
     # Cấu hình xác thực JWT (JSON Web Token)
     jwt:
       # Khóa bí mật dùng để ký và xác thực token
