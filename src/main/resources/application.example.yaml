@@ -290,6 +290,14 @@ application:
       # Dùng để xác định hệ thống đã tạo ra token
       issuer: ${JWT_ISSUER:Clothes-API}
 
+    # Cấu hình token blacklist
+    token:
+      blacklist:
+        # Cron expression cho job dọn dẹp token hết hạn
+        # Mặc định: 3:00 sáng mỗi ngày
+        # Format: giây phút giờ ngày tháng thứ
+        cleanup-cron: ${TOKEN_BLACKLIST_CLEANUP_CRON:0 0 3 * * *}
+
   # -- CORS --
   cors:
     # Danh sách origin được phép gọi API — dùng dấu phẩy để khai báo nhiều origin

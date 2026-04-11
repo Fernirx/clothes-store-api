@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class TokenBlacklistCleanupJob {
     private final TokenBlacklistRepository tokenBlacklistRepository;
 
-    @Scheduled(cron = "${security.token.blacklist.cleanup-cron:0 0 3 * * *}")
+    @Scheduled(cron = "${application.security.token.blacklist.cleanup-cron:0 0 3 * * *}")
     public void cleanupExpiredTokens() {
         tokenBlacklistRepository.deleteByExpiresAtBefore(LocalDateTime.now());
         log.info("Đã dọn dẹp các token hết hạn trong blacklist");
