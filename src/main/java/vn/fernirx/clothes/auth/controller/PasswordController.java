@@ -18,7 +18,7 @@ import vn.fernirx.clothes.common.response.SuccessResponse;
 @RequestMapping("/auth/password")
 @RequiredArgsConstructor
 public class PasswordController {
-    private PasswordService passwordService;
+    private final PasswordService passwordService;
 
     @PostMapping("/forgot")
     public ResponseEntity<SuccessResponse<Void>> forgotPassword(
