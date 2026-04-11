@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
 import vn.fernirx.clothes.common.exception.TokenException;
 import vn.fernirx.clothes.handler.JwtAuthenticationEntryPoint;
+import vn.fernirx.clothes.security.token.TokenBlacklistService;
 
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final TokenBlacklistService tokenBlacklistService;
 
 
     @Override
@@ -40,6 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = extractJwtToken(request);
             if (isValidToken(token)) {
+                if (tokenBlacklistService.isBlacklisted(token)) {
+                    throw TokenException.invalid();
+                }
                 setAuthenticationContext(token, request);
             }
             filterChain.doFilter(request, response);

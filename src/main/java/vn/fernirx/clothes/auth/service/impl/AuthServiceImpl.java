@@ -6,7 +6,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,17 +21,16 @@ import vn.fernirx.clothes.auth.service.OtpService;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.common.enums.BlacklistReason;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.security.JwtProvider;
 import vn.fernirx.clothes.security.SecurityUtils;
+import vn.fernirx.clothes.security.token.TokenBlacklistService;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
 import vn.fernirx.clothes.user.service.impl.CustomUserDetailsServiceImpl;
-
-import java.util.Collections;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
     private final CustomUserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     @Transactional
@@ -132,6 +131,12 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(refreshToken)
                 .user(userResponse)
                 .build();
+    }
+
+    @Override
+    public void logout(String accessToken) {
+        long userId = Long.parseLong(jwtProvider.extractSubject(accessToken));
+        tokenBlacklistService.blacklist(accessToken, userId, BlacklistReason.LOGOUT);
     }
 
     @Override

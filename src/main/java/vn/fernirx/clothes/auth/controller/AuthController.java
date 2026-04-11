@@ -1,12 +1,15 @@
 package vn.fernirx.clothes.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import vn.fernirx.clothes.common.constant.SecurityConstants;
 import vn.fernirx.clothes.auth.dto.request.*;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
 import vn.fernirx.clothes.auth.service.AuthService;
@@ -63,5 +66,14 @@ public class AuthController {
         return ResponseEntity.ok(
                 SuccessResponse.of("Resend success")
         );
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<SuccessResponse<Void>> logout(HttpServletRequest request) {
+        String header = request.getHeader(SecurityConstants.AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(header) && header.startsWith(SecurityConstants.BEARER_PREFIX)) {
+            authService.logout(header.substring(SecurityConstants.BEARER_PREFIX_LENGTH));
+        }
+        return ResponseEntity.ok(SuccessResponse.of("Logout success"));
     }
 }

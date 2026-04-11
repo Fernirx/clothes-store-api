@@ -11,6 +11,8 @@ import vn.fernirx.clothes.common.exception.TokenException;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -122,6 +124,13 @@ public class JwtProvider {
                     .collect(Collectors.toSet());
         }
         return Set.of();
+    }
+
+    public LocalDateTime extractExpiration(String token) {
+        return extractAllClaims(token).getExpiration()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
     }
 
     public Set<String> extractAuthoritiesIgnoreExpiry(String token) {
