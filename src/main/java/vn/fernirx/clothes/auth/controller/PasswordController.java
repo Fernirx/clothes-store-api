@@ -1,5 +1,7 @@
 package vn.fernirx.clothes.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,15 @@ import vn.fernirx.clothes.common.response.SuccessResponse;
 @RestController
 @RequestMapping("/auth/password")
 @RequiredArgsConstructor
+@Tag(name = "Password API", description = "Các API quản lý mật khẩu")
 public class PasswordController {
     private final PasswordService passwordService;
 
     @PostMapping("/forgot")
+    @Operation(
+            summary = "Quên mật khẩu",
+            description = "Gửi mã OTP xác thực đến email để bắt đầu quá trình đặt lại mật khẩu"
+    )
     public ResponseEntity<SuccessResponse<Void>> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
         passwordService.forgotPassword(request);
@@ -31,6 +38,10 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot/verify")
+    @Operation(
+            summary = "Xác thực OTP quên mật khẩu",
+            description = "Xác thực mã OTP để lấy reset token dùng cho bước đặt lại mật khẩu"
+    )
     public ResponseEntity<SuccessResponse<TokenResponse>> verifyForgotPassword(
             @Valid @RequestBody VerifyOtpRequest request) {
         TokenResponse tokenResponse = passwordService.verifyForgotPassword(request);
@@ -41,6 +52,10 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot/resend")
+    @Operation(
+            summary = "Gửi lại OTP quên mật khẩu",
+            description = "Gửi lại mã OTP xác thực đến email khi quên mật khẩu"
+    )
     public ResponseEntity<SuccessResponse<Void>> resendForgotPassword(
             @Valid @RequestBody ResendOtpRequest request) {
         passwordService.resendOtp(request);
@@ -50,6 +65,10 @@ public class PasswordController {
     }
 
     @PostMapping("/forgot/reset")
+    @Operation(
+            summary = "Đặt lại mật khẩu",
+            description = "Đặt mật khẩu mới bằng reset token đã được xác thực qua OTP"
+    )
     public ResponseEntity<SuccessResponse<Void>> resetPassword(
             @Valid @RequestBody ResetPasswordRequest request) {
         passwordService.resetPassword(request);
