@@ -15,8 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     @Query(value = "SELECT * FROM users u WHERE u.id = :id", nativeQuery = true)
     Optional<User> findByIdIncludeDeleted(@Param("id") Long id);
 
-    @Query(value = "SELECT COUNT(*) > 0 FROM users u WHERE u.email = :email", nativeQuery = true)
-    boolean existsByEmailIncludeDeleted(@Param("email") String email);
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM users u WHERE u.email = :email)", nativeQuery = true)
+    Integer existsByEmailIncludeDeleted(@Param("email") String email);
 
     @Query(value = "SELECT * FROM users u WHERE u.email = :email", nativeQuery = true)
     Optional<User> findByEmailIncludeDeleted(@Param("email") String email);

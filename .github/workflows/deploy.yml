@@ -3,6 +3,12 @@ name: CD pipeline
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'docs/**'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -62,33 +68,45 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: >-
+            DB_USERNAME,DB_PASSWORD,DB_ROOT_PASSWORD,
+            JWT_SECRET,
+            MAIL_USERNAME,MAIL_PASSWORD,
+            CORS_ALLOWED_ORIGINS,
+            CLOUDINARY_CLOUD_NAME,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,
+            GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET
           script: |
             cd ${{ secrets.SERVER_DEPLOY_PATH }}
 
             cp .env.example .env
 
-            sed -i "s|DB_USERNAME=.*|DB_USERNAME=${{ secrets.DB_USERNAME }}|" .env
-            sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=${{ secrets.DB_PASSWORD }}|" .env
-            sed -i "s|DB_ROOT_PASSWORD=.*|DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}|" .env
-            
-            sed -i "s|JWT_SECRET=.*|JWT_SECRET=${{ secrets.JWT_SECRET }}|" .env
-            
-            sed -i "s|MAIL_USERNAME=.*|MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}|" .env
-            sed -i "s|MAIL_PASSWORD=.*|MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}|" .env
-            
-            sed -i "s|CORS_ALLOWED_ORIGINS=.*|CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}|" .env
-            
-            sed -i "s|CLOUDINARY_CLOUD_NAME=.*|CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}|" .env
-            sed -i "s|CLOUDINARY_API_KEY=.*|CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}|" .env
-            sed -i "s|CLOUDINARY_API_SECRET=.*|CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}|" .env
-            
-            sed -i "s|GOOGLE_CLIENT_ID=.*|GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}|" .env
-            sed -i "s|GOOGLE_CLIENT_SECRET=.*|GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}|" .env
-            sed -i "s|GOOGLE_SCOPES=.*|GOOGLE_SCOPES=${{ secrets.GOOGLE_SCOPES }}|" .env
-            
-            sed -i "s|REDIS_HOST=.*|REDIS_HOST=${{ secrets.REDIS_HOST }}|" .env
-            sed -i "s|REDIS_PORT=.*|REDIS_PORT=${{ secrets.REDIS_PORT }}|" .env
-            sed -i "s|REDIS_PASSWORD=.*|REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}|" .env
+            python3 << 'PYEOF'
+            import os, re
+
+            overrides = [
+                'DB_USERNAME', 'DB_PASSWORD', 'DB_ROOT_PASSWORD',
+                'JWT_SECRET',
+                'MAIL_USERNAME', 'MAIL_PASSWORD',
+                'CORS_ALLOWED_ORIGINS',
+                'CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET',
+                'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET',
+            ]
+
+            with open('.env', 'r') as f:
+                content = f.read()
+
+            for key in overrides:
+                value = os.environ.get(key, '')
+                content = re.sub(
+                    rf'^{re.escape(key)}=.*',
+                    lambda m, k=key, v=value: f'{k}={v}',
+                    content,
+                    flags=re.MULTILINE
+                )
+
+            with open('.env', 'w') as f:
+                f.write(content)
+            PYEOF
 
             docker compose -f docker-compose.prod.yml pull app
             docker compose -f docker-compose.prod.yml up -d --no-build

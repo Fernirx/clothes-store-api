@@ -6,15 +6,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.fernirx.clothes.auth.dto.request.LoginRequest;
-import vn.fernirx.clothes.auth.dto.request.RegisterRequest;
-import vn.fernirx.clothes.auth.dto.request.ResendOtpRequest;
-import vn.fernirx.clothes.auth.dto.request.VerifyOtpRequest;
+import vn.fernirx.clothes.auth.dto.request.*;
 import vn.fernirx.clothes.auth.dto.response.TokenResponse;
+import vn.fernirx.clothes.auth.dto.response.UserInfo;
+import vn.fernirx.clothes.auth.enums.OtpPurpose;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.auth.exception.AccountDisabledException;
 import vn.fernirx.clothes.auth.exception.InvalidCredentialsException;
@@ -23,16 +21,17 @@ import vn.fernirx.clothes.auth.service.OtpService;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
+import vn.fernirx.clothes.common.exception.TokenException;
+import vn.fernirx.clothes.common.enums.BlacklistReason;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.security.JwtProvider;
+import vn.fernirx.clothes.security.SecurityUtils;
+import vn.fernirx.clothes.security.token.TokenBlacklistService;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
 import vn.fernirx.clothes.user.service.impl.CustomUserDetailsServiceImpl;
-
-import java.util.Collections;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final OtpService otpService;
     private final CustomUserDetailsServiceImpl userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     @Transactional
@@ -65,12 +65,35 @@ public class AuthServiceImpl implements AuthService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String accessToken = jwtProvider.generateAccessToken(userDetails);
         String refreshToken = jwtProvider.generateRefreshToken(userDetails);
-        return new TokenResponse(accessToken, refreshToken);
+        UserInfo userResponse = new UserInfo(
+                userDetails.getId(),
+                userDetails.getEmail(),
+                SecurityUtils.getAuthorities(userDetails)
+        );
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
+    }
+
+    @Override
+    public TokenResponse refreshToken(RefreshTokenRequest request) {
+        if (tokenBlacklistService.isBlacklisted(request.refreshToken())) {
+            throw TokenException.invalid();
+        }
+        String email = jwtProvider.extractEmail(request.refreshToken());
+        CustomUserDetails userDetails =
+                (CustomUserDetails) userDetailsService.loadUserByUsername(email);
+        String accessToken = jwtProvider.refreshAccessToken(request.refreshToken(), userDetails);
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .build();
     }
 
     @Override
     public void register(RegisterRequest request) {
-        if (userRepository.existsByEmailIncludeDeleted(request.email())) {
+        if (userRepository.existsByEmailIncludeDeleted(request.email()) == 1) {
             throw new ResourceAlreadyExistsException("User");
         }
 
@@ -88,27 +111,41 @@ public class AuthServiceImpl implements AuthService {
                 .user(user)
                 .build();
         userProfileRepository.save(userProfile);
-        otpService.sendOtp(request.email(), request.firstName());
+        otpService.sendOtp(request.email(), request.firstName(), OtpPurpose.REGISTER);
     }
 
     @Override
     public TokenResponse verifyOtp(VerifyOtpRequest request) {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
-        otpService.verifyOtp(request.email(), request.otp());
+        otpService.verifyOtp(request.email(), request.otp(), OtpPurpose.REGISTER);
         user.setVerified(true);
         userRepository.save(user);
-        CustomUserDetails userDetails = CustomUserDetails.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .authorities(
-                        Collections.singleton(
-                                new SimpleGrantedAuthority("ROLE_" + user.getRole()))
-                )
-                .build();
+        CustomUserDetails userDetails =
+                (CustomUserDetails) userDetailsService.loadUserByUsername(request.email());
         String accessToken = jwtProvider.generateAccessToken(userDetails);
         String refreshToken = jwtProvider.generateRefreshToken(userDetails);
-        return new TokenResponse(accessToken, refreshToken);
+        UserInfo userResponse = new UserInfo(
+                userDetails.getId(),
+                userDetails.getEmail(),
+                SecurityUtils.getAuthorities(userDetails)
+        );
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .user(userResponse)
+                .build();
+    }
+
+    @Override
+    public void logout(String accessToken, String refreshToken) {
+        long userId = Long.parseLong(jwtProvider.extractSubject(accessToken));
+        tokenBlacklistService.blacklist(accessToken, userId, BlacklistReason.LOGOUT);
+        try {
+            tokenBlacklistService.blacklist(refreshToken, userId, BlacklistReason.LOGOUT);
+        } catch (Exception ignored) {
+            // refresh token hết hạn hoặc không hợp lệ — không cần blacklist
+        }
     }
 
     @Override
@@ -117,6 +154,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ResourceNotFoundException("User"));
         UserProfile userProfile = userProfileRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
-        otpService.sendOtp(request.email(), userProfile.getFirstName());
+        otpService.sendOtp(request.email(), userProfile.getFirstName(), OtpPurpose.REGISTER);
     }
 }

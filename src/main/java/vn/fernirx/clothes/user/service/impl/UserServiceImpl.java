@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateEmailNotExists(String email) {
-        if (userRepository.existsByEmailIncludeDeleted(email)) {
+        if (userRepository.existsByEmailIncludeDeleted(email) == 1) {
             throw new ResourceAlreadyExistsException("Email");
         }
     }
