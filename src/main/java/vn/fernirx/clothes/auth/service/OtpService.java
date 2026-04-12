@@ -10,8 +10,8 @@ import vn.fernirx.clothes.auth.dto.OTPData;
 import vn.fernirx.clothes.auth.enums.OtpPurpose;
 import vn.fernirx.clothes.auth.exception.OTPException;
 import vn.fernirx.clothes.common.exception.CacheSerializationException;
-import vn.fernirx.clothes.config.OTPProperties;
-import vn.fernirx.clothes.integration.message.MailService;
+import vn.fernirx.clothes.auth.config.OTPProperties;
+import vn.fernirx.clothes.notification.service.MailService;
 
 import java.security.SecureRandom;
 import java.time.Instant;
