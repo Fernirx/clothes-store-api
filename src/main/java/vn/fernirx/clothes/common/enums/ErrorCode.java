@@ -48,7 +48,8 @@ public enum ErrorCode {
     /* ================== RESOURCE ================== */
     NOT_FOUND("NOT_FOUND", HttpStatus.NOT_FOUND),
     ALREADY_EXISTS("ALREADY_EXISTS", HttpStatus.CONFLICT),
-    IN_USE("IN_USE", HttpStatus.CONFLICT);
+    IN_USE("IN_USE", HttpStatus.CONFLICT),
+    MEDIA_ERROR("MEDIA_ERROR", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final HttpStatus httpStatus;
