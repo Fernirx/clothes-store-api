@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
 import vn.fernirx.clothes.common.exception.TokenException;
+import vn.fernirx.clothes.security.config.JwtProperties;
 
 import javax.crypto.SecretKey;
 import java.time.Duration;

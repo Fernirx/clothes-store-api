@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.handler;
+package vn.fernirx.clothes.common.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import vn.fernirx.clothes.common.enums.ErrorCode;
-import vn.fernirx.clothes.common.exception.AppException;
 import vn.fernirx.clothes.common.response.ErrorDetail;
 import vn.fernirx.clothes.common.response.ErrorResponse;
 

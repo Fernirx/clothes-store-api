@@ -15,7 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
 import vn.fernirx.clothes.common.exception.TokenException;
-import vn.fernirx.clothes.handler.JwtAuthenticationEntryPoint;
 import vn.fernirx.clothes.security.token.TokenBlacklistService;
 
 import java.io.IOException;
