@@ -1,4 +1,11 @@
 package vn.fernirx.clothes.user.dto.request;
 
-public record AvatarUploadResquest() {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record UploadAvatarRequest(
+        @NotBlank
+        String url,
+
+        @NotBlank
+        String publicId
+) {}
