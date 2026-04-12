@@ -17,10 +17,10 @@ public class MediaServiceImpl implements MediaService {
 
     @Override
     public ImageResponse uploadImage(MultipartFile file, String folder) {
-        String public_id = UUID.randomUUID().toString();
-        Map<?, ?> result = provider.upload(file, folder, public_id);
+        String publicId = UUID.randomUUID().toString();
+        Map<?, ?> result = provider.upload(file, folder, publicId);
         return new ImageResponse(
-                (String) result.get("url"),
+                (String) result.get("secure_url"),
                 (String) result.get("public_id")
         );
     }
