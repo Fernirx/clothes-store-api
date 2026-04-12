@@ -13,7 +13,7 @@ import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
 import vn.fernirx.clothes.common.util.PasswordUtil;
-import vn.fernirx.clothes.integration.message.MailService;
+import vn.fernirx.clothes.notification.service.MailService;
 import vn.fernirx.clothes.user.dto.request.ChangePasswordRequest;
 import vn.fernirx.clothes.user.dto.request.CreateUserRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateUserRequest;

@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
-import vn.fernirx.clothes.integration.storage.CloudinaryService;
+import vn.fernirx.clothes.media.service.MediaService;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
+import vn.fernirx.clothes.user.dto.request.UploadAvatarRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.mapper.UserProfileMapper;
@@ -21,7 +22,6 @@ import java.util.Map;
 public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserProfileMapper userProfileMapper;
-    private final CloudinaryService cloudinaryService;
 
     @Override
     @Transactional(readOnly = true)
@@ -42,6 +42,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
+    @Transactional
     public UserProfileResponse updateShipping(Long userId, UpdateShippingRequest req) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
@@ -51,18 +52,12 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
-    public String updateAvatar(Long userId, MultipartFile avatar) {
+    @Transactional
+    public void updateAvatar(Long userId, UploadAvatarRequest req) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("UserProfile"));
-
-        if (userProfile.getAvatarPublicId() != null) {
-            cloudinaryService.deleteImage(userProfile.getAvatarPublicId());
-        }
-
-        Map<String, String> result = cloudinaryService.uploadProfileAvatar(userId, avatar);
-        userProfile.setAvatarUrl(result.get("url"));
-        userProfile.setAvatarPublicId(result.get("publicId"));
+        userProfile.setAvatarUrl(req.url());
+        userProfile.setAvatarPublicId(req.publicId());
         userProfileRepository.save(userProfile);
-        return userProfile.getAvatarUrl();
     }
 }

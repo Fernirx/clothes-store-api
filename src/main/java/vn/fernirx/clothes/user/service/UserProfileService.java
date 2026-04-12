@@ -3,6 +3,7 @@ package vn.fernirx.clothes.user.service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
+import vn.fernirx.clothes.user.dto.request.UploadAvatarRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
 
 public interface UserProfileService {
@@ -12,5 +13,5 @@ public interface UserProfileService {
 
     UserProfileResponse updateShipping(Long userId, UpdateShippingRequest req);
 
-    String updateAvatar(Long userId, MultipartFile avatar);
+    void updateAvatar(Long userId, UploadAvatarRequest req);
 }

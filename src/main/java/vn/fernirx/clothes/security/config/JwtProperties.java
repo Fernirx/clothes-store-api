@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.security;
+package vn.fernirx.clothes.security.config;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

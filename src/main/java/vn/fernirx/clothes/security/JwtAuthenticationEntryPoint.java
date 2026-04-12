@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.handler;
+package vn.fernirx.clothes.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

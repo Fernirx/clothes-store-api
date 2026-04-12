@@ -14,6 +14,7 @@ import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.user.dto.request.ChangePasswordRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateProfileRequest;
 import vn.fernirx.clothes.user.dto.request.UpdateShippingRequest;
+import vn.fernirx.clothes.user.dto.request.UploadAvatarRequest;
 import vn.fernirx.clothes.user.dto.response.UserProfileResponse;
 import vn.fernirx.clothes.user.service.UserProfileService;
 import vn.fernirx.clothes.user.service.UserService;
@@ -74,19 +75,16 @@ public class MeController {
         ));
     }
 
-    @PatchMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/avatar")
     @Operation(
             summary = "Cập nhật avatar",
-            description = "Upload và cập nhật ảnh đại diện cho người dùng hiện tại (multipart/form-data)"
+            description = "Cập nhật ảnh đại diện cho người dùng hiện tại"
     )
-    public ResponseEntity<SuccessResponse<Map<String, String>>> updateUserAvatar(
+    public ResponseEntity<SuccessResponse<Void>> updateUserAvatar(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestPart("avatar") MultipartFile avatar) {
-        String url = userProfileService.updateAvatar(userDetails.getId(), avatar);
-        return ResponseEntity.ok(SuccessResponse.of(
-                "Avatar updated successfully",
-                Map.of("avatarUrl", url)
-        ));
+            @Valid @RequestBody UploadAvatarRequest request) {
+        userProfileService.updateAvatar(userDetails.getId(), request);
+        return ResponseEntity.ok(SuccessResponse.of("Avatar updated successfully"));
     }
 
     @PostMapping("/change-password")

@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.integration.storage;
+package vn.fernirx.clothes.media.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;

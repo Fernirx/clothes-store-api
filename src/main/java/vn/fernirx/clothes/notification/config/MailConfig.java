@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.integration.message;
+package vn.fernirx.clothes.notification.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.mail.autoconfigure.MailProperties;

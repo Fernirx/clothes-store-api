@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.config;
+package vn.fernirx.clothes.auth.config;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

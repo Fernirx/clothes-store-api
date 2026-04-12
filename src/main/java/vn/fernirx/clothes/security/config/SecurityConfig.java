@@ -1,6 +1,5 @@
-package vn.fernirx.clothes.config;
+package vn.fernirx.clothes.security.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

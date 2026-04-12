@@ -1,4 +1,4 @@
-package vn.fernirx.clothes.integration.storage;
+package vn.fernirx.clothes.media.config;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
