@@ -22,6 +22,8 @@
         <springdoc.version>3.0.2</springdoc.version>
         <io.jsonwebtoken.version>0.13.0</io.jsonwebtoken.version>
         <cloudinary.version>1.39.0</cloudinary.version>
+        <slugify.version>3.0.6</slugify.version>
+        <icu4j.version>74.2</icu4j.version>
     </properties>
 
     <dependencies>
@@ -92,6 +94,18 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.slugify</groupId>
+            <artifactId>slugify</artifactId>
+            <version>${slugify.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>${icu4j.version}</version>
         </dependency>
 
         <dependency>

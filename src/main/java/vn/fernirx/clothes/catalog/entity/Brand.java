@@ -1,33 +1,45 @@
 package vn.fernirx.clothes.catalog.entity;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import vn.fernirx.clothes.common.entity.BaseEntity;
+@lombok.Getter
+@lombok.Setter@jakarta.persistence.Entity
+@jakarta.persistence.Table(name = "brands", indexes = {@jakarta.persistence.Index(name = "idx_brands_active",
+columnList = "is_active")}, uniqueConstraints = {
+@jakarta.persistence.UniqueConstraint(name = "name_UNIQUE",
+columnNames = {"name"}),
+@jakarta.persistence.UniqueConstraint(name = "slug_UNIQUE",
+columnNames = {"slug"})})
+public class Brand extends vn.fernirx.clothes.common.entity.BaseEntity {
+@jakarta.validation.constraints.Size(max = 100)
+@jakarta.validation.constraints.NotNull
+@jakarta.persistence.Column(name = "name", nullable = false, length = 100)
+private java.lang.String name;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@Entity
-@Table(name = "brands")
-public class Brand extends BaseEntity {
+@jakarta.validation.constraints.Size(max = 100)
+@jakarta.validation.constraints.NotNull
+@jakarta.persistence.Column(name = "slug", nullable = false, length = 100)
+private java.lang.String slug;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+@jakarta.persistence.Lob
+@jakarta.persistence.Column(name = "description")
+private java.lang.String description;
 
-    @Column(name = "slug", unique = true, nullable = false)
-    private String slug;
+@jakarta.validation.constraints.Size(max = 500)
+@jakarta.persistence.Column(name = "logo_url", length = 500)
+private java.lang.String logoUrl;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+@jakarta.validation.constraints.Size(max = 255)
+@jakarta.persistence.Column(name = "logo_public_id")
+private java.lang.String logoPublicId;
 
-    @Column(name = "logo_url")
-    private String logoUrl;
+@jakarta.validation.constraints.NotNull
+@org.hibernate.annotations.ColumnDefault("1")
+@jakarta.persistence.Column(name = "is_active", nullable = false)
+private java.lang.Boolean isActive;
 
-    @Column(name = "logo_public_id")
-    private String logoPublicId;
+@jakarta.persistence.OneToMany
+@jakarta.persistence.JoinColumn(name = "brand_id")
+private java.util.Set<vn.fernirx.clothes.catalog.entity.Product> products = new java.util.LinkedHashSet<>();
 
-    @Column(name = "is_active")
-    private Boolean isActive = true;
+
+
 }
