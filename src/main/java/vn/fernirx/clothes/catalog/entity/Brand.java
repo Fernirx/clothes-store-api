@@ -1,45 +1,52 @@
 package vn.fernirx.clothes.catalog.entity;
 
-@lombok.Getter
-@lombok.Setter@jakarta.persistence.Entity
-@jakarta.persistence.Table(name = "brands", indexes = {@jakarta.persistence.Index(name = "idx_brands_active",
-columnList = "is_active")}, uniqueConstraints = {
-@jakarta.persistence.UniqueConstraint(name = "name_UNIQUE",
-columnNames = {"name"}),
-@jakarta.persistence.UniqueConstraint(name = "slug_UNIQUE",
-columnNames = {"slug"})})
-public class Brand extends vn.fernirx.clothes.common.entity.BaseEntity {
-@jakarta.validation.constraints.Size(max = 100)
-@jakarta.validation.constraints.NotNull
-@jakarta.persistence.Column(name = "name", nullable = false, length = 100)
-private java.lang.String name;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import vn.fernirx.clothes.common.entity.BaseEntity;
 
-@jakarta.validation.constraints.Size(max = 100)
-@jakarta.validation.constraints.NotNull
-@jakarta.persistence.Column(name = "slug", nullable = false, length = 100)
-private java.lang.String slug;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@jakarta.persistence.Lob
-@jakarta.persistence.Column(name = "description")
-private java.lang.String description;
+@Getter
+@Setter
+@Entity
+@Table(name = "brands", indexes = {@Index(name = "idx_brands_active",
+        columnList = "is_active")}, uniqueConstraints = {
+        @UniqueConstraint(name = "name_UNIQUE",
+                columnNames = {"name"}),
+        @UniqueConstraint(name = "slug_UNIQUE",
+                columnNames = {"slug"})})
+public class Brand extends BaseEntity {
+    @Size(max = 100)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-@jakarta.validation.constraints.Size(max = 500)
-@jakarta.persistence.Column(name = "logo_url", length = 500)
-private java.lang.String logoUrl;
+    @Size(max = 100)
+    @NotNull
+    @Column(name = "slug", nullable = false, length = 100)
+    private String slug;
 
-@jakarta.validation.constraints.Size(max = 255)
-@jakarta.persistence.Column(name = "logo_public_id")
-private java.lang.String logoPublicId;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-@jakarta.validation.constraints.NotNull
-@org.hibernate.annotations.ColumnDefault("1")
-@jakarta.persistence.Column(name = "is_active", nullable = false)
-private java.lang.Boolean isActive;
+    @Size(max = 500)
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
 
-@jakarta.persistence.OneToMany
-@jakarta.persistence.JoinColumn(name = "brand_id")
-private java.util.Set<vn.fernirx.clothes.catalog.entity.Product> products = new java.util.LinkedHashSet<>();
+    @Size(max = 255)
+    @Column(name = "logo_public_id")
+    private String logoPublicId;
 
+    @NotNull
+    @ColumnDefault("1")
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
-
+    @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
+    private Set<Product> products = new LinkedHashSet<>();
 }

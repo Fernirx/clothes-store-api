@@ -1,27 +1,33 @@
 package vn.fernirx.clothes.catalog.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import vn.fernirx.clothes.catalog.dto.request.BrandRequest;
+import org.mapstruct.*;
+import vn.fernirx.clothes.catalog.dto.request.CreateBrandRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateBrandRequest;
 import vn.fernirx.clothes.catalog.dto.response.BrandResponse;
 import vn.fernirx.clothes.catalog.entity.Brand;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface BrandMapper {
-
-    BrandResponse toResponse(Brand brand);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", defaultExpression = "java(Boolean.TRUE)")
-    Brand toEntity(BrandRequest request);
+    BrandResponse toDto(Brand brand);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "slug", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateFromRequest(BrandRequest request, @MappingTarget Brand brand);
+    @Mapping(target = "products", ignore = true)
+    Brand toEntity(CreateBrandRequest request);
+
+    @BeanMapping(
+            ignoreByDefault = true,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    )
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "logoUrl", source = "logoUrl")
+    @Mapping(target = "logoPublicId", source = "logoPublicId")
+    @Mapping(target = "isActive", source = "isActive")
+    void updateFromRequest(UpdateBrandRequest request, @MappingTarget Brand brand);
 }
