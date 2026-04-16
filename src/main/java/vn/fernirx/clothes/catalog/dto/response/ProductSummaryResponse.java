@@ -14,4 +14,11 @@ public record ProductSummaryResponse(
         Boolean isNew,
         Boolean isOnSale,
         List<ColorPreviewResponse> colorPreviews
-) {}
+) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record ColorPreviewResponse(
+            String color,
+            String hex,
+            String primaryImage
+    ) {}
+}
