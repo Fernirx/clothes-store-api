@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         left join fetch pc.category
         left join fetch p.productImages
         left join fetch p.productVariants
-        where p.slug = :slug
+        where p.slug = :slug and p.isActive = true
     """)
-    Optional<Product> findDetailBySlug(String slug);
+    Optional<Product> findBySlug(String slug);
 }

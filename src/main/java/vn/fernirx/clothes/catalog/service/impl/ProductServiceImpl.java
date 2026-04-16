@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductDetailResponse getDetailBySlug(String slug) {
-        Product product = productRepository.findDetailBySlug(slug)
+        Product product = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Product"));
         return productMapper.toProductDetailResponse(product);
     }
