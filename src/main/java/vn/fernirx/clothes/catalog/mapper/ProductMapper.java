@@ -1,12 +1,13 @@
 package vn.fernirx.clothes.catalog.mapper;
 
 import org.mapstruct.*;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductSummaryResponse;
 import vn.fernirx.clothes.catalog.entity.Product;
 import vn.fernirx.clothes.catalog.entity.ProductCategory;
 import vn.fernirx.clothes.catalog.entity.ProductImage;
-import vn.fernirx.clothes.catalog.entity.ProductVariant;
 
 import java.util.List;
 import java.util.Set;
@@ -17,16 +18,15 @@ import java.util.stream.Collectors;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ProductMapper {
-
     @Mapping(target = "colorPreviews", source = "productImages", qualifiedByName = "toColorPreviews")
     ProductSummaryResponse toProductSummaryResponse(Product product);
 
+    AdminProductSummaryResponse toAdminProductSummaryResponse(Product product);
+
     @Mapping(target = "categories", source = "productCategories", qualifiedByName = "toCategoryList")
     @Mapping(target = "imagesByColor", source = "productImages", qualifiedByName = "toImageByColor")
-    @Mapping(target = "variants", source = "productVariants", qualifiedByName = "toVariantList")
+    @Mapping(target = "variants", source = "productVariants")
     ProductDetailResponse toProductDetailResponse(Product product);
-
-    ProductDetailResponse.VariantInfo toVariantInfo(ProductVariant variant);
 
     @Named("toColorPreviews")
     default List<ProductSummaryResponse.ColorPreviewResponse> toColorPreviews(Set<ProductImage> productImages) {
@@ -80,14 +80,42 @@ public interface ProductMapper {
                 .toList();
     }
 
-    @Named("toVariantList")
-    default List<ProductDetailResponse.VariantInfo> toVariantList(Set<ProductVariant> productVariants) {
-        if (productVariants == null || productVariants.isEmpty()) {
-            return List.of();
-        }
+    // Admin
+    @Mapping(target = "categories", source = "productCategories", qualifiedByName = "toAdminCategoryList")
+    @Mapping(target = "imagesByColor", source = "productImages", qualifiedByName = "toAdminImageByColor")
+    @Mapping(target = "variants", source = "productVariants")
+    AdminProductDetailResponse toAdminProductDetailResponse(Product product);
 
-        return productVariants.stream()
-                .map(this::toVariantInfo)
+    @Named("toAdminCategoryList")
+    default List<AdminProductDetailResponse.CategoryInfo> toAdminCategoryList(Set<ProductCategory> productCategories) {
+        if (productCategories == null || productCategories.isEmpty()) return List.of();
+        return productCategories.stream()
+                .map(pc -> new AdminProductDetailResponse.CategoryInfo(
+                        pc.getCategory().getId(),
+                        pc.getCategory().getName(),
+                        pc.getCategory().getSlug()
+                ))
+                .toList();
+    }
+
+    @Named("toAdminImageByColor")
+    default List<AdminProductDetailResponse.ImagesByColor> toAdminImageByColor(Set<ProductImage> productImages) {
+        if (productImages == null || productImages.isEmpty()) return List.of();
+        return productImages.stream()
+                .collect(Collectors.groupingBy(ProductImage::getColor))
+                .entrySet().stream()
+                .map(entry -> new AdminProductDetailResponse.ImagesByColor(
+                        entry.getKey(),
+                        entry.getValue().getFirst().getColorHex(),
+                        entry.getValue().stream()
+                                .map(img -> new AdminProductDetailResponse.ImagesByColor.ImageInfo(
+                                        img.getId(),
+                                        img.getImageUrl(),
+                                        img.getImagePublicId(),
+                                        img.getIsPrimary()
+                                ))
+                                .toList()
+                ))
                 .toList();
     }
 }
