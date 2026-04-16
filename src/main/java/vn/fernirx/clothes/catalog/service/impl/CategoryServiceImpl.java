@@ -98,7 +98,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryRepository.existsByParentId(id)) {
             throw new ResourceInUseException("Category");
         }
-        if (productRepository.existsByCategoriesId(id)) {
+        if (productRepository.existsByProductCategories_Category(category)) {
             throw new ResourceInUseException("Category");
         }
         categoryRepository.delete(category);
