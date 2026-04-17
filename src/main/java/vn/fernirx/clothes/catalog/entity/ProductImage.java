@@ -9,8 +9,9 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -20,7 +21,7 @@ import java.time.Instant;
                 columnList = "product_id, color, is_primary"),
         @Index(name = "idx_images_product_color",
                 columnList = "product_id, color")})
-@EntityListeners(EntityListeners.class)
+@EntityListeners(AuditingEntityListener.class)
 public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,7 +56,7 @@ public class ProductImage {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
     @CreatedDate
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
