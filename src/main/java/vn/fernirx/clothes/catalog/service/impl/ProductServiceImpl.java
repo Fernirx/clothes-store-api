@@ -1,5 +1,6 @@
 package vn.fernirx.clothes.catalog.service.impl;
 
+import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,27 +8,36 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.catalog.dto.request.AdminProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductRequest;
 import vn.fernirx.clothes.catalog.dto.request.ProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductRequest;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductSummaryResponse;
+import vn.fernirx.clothes.catalog.entity.Brand;
 import vn.fernirx.clothes.catalog.entity.Product;
 import vn.fernirx.clothes.catalog.mapper.ProductMapper;
 import vn.fernirx.clothes.catalog.repository.AdminProductSpecification;
+import vn.fernirx.clothes.catalog.repository.BrandRepository;
 import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.repository.ProductSpecification;
 import vn.fernirx.clothes.catalog.service.ProductService;
+import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
+import vn.fernirx.clothes.order.repository.OrderItemRepository;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final BrandRepository brandRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductMapper productMapper;
+    private final Slugify slugify;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,5 +83,45 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product"));
         return productMapper.toAdminProductDetailResponse(product);
+    }
+
+    @Override
+    public AdminProductDetailResponse create(CreateProductRequest request) {
+        if (productRepository.existsByNameOrCode(request.name(), request.code())) {
+            throw new ResourceAlreadyExistsException("Product");
+        }
+        Brand brand = brandRepository.findById(request.brandId())
+                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
+        Product product = productMapper.toEntity(request);
+        product.setBrand(brand);
+        product.setSlug(slugify.slugify(request.name()));
+        productRepository.save(product);
+        return productMapper.toAdminProductDetailResponse(product);
+    }
+
+    @Override
+    public AdminProductDetailResponse update(Long id, UpdateProductRequest request) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        if (request.name() != null
+                && !product.getName().equals(request.name())
+                && productRepository.existsByName(request.name())) {
+            throw new ResourceAlreadyExistsException("Product");
+        }
+        productMapper.updateFromRequest(request, product);
+        if (request.name() != null)
+            product.setSlug(slugify.slugify(request.name()));
+        productRepository.save(product);
+        return productMapper.toAdminProductDetailResponse(product);
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (orderItemRepository.existsByVariant_ProductId(id)) {
+            throw new ResourceAlreadyExistsException("Product");
+        }
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        productRepository.delete(product);
     }
 }

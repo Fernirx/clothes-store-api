@@ -1,6 +1,8 @@
 package vn.fernirx.clothes.catalog.mapper;
 
 import org.mapstruct.*;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductRequest;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
@@ -18,6 +20,35 @@ import java.util.stream.Collectors;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface ProductMapper {
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "slug", ignore = true)
+    @Mapping(target = "brand", ignore = true)
+    @Mapping(target = "productCategories", ignore = true)
+    @Mapping(target = "productImages", ignore = true)
+    @Mapping(target = "productVariants", ignore = true)
+    @Mapping(target = "soldCount", expression = "java(0)")
+    @Mapping(target = "viewCount", expression = "java(0)")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Product toEntity(CreateProductRequest request);
+
+    @BeanMapping(
+            ignoreByDefault = true,
+            nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    )
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "material", source = "material")
+    @Mapping(target = "originCountry", source = "originCountry")
+    @Mapping(target = "gender", source = "gender")
+    @Mapping(target = "basePrice", source = "basePrice")
+    @Mapping(target = "originalPrice", source = "originalPrice")
+    @Mapping(target = "costPrice", source = "costPrice")
+    @Mapping(target = "isNew", source = "isNew")
+    @Mapping(target = "isOnSale", source = "isOnSale")
+    @Mapping(target = "isActive", source = "isActive")
+    void updateFromRequest(UpdateProductRequest request, @MappingTarget Product product);
+
     @Mapping(target = "colorPreviews", source = "productImages", qualifiedByName = "toColorPreviews")
     ProductSummaryResponse toProductSummaryResponse(Product product);
 

@@ -36,4 +36,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         where p.id = :id
     """)
     Optional<Product> findById(Long id);
+
+    boolean existsByNameOrCode(String name, String code);
+
+    boolean existsByName(String name);
 }

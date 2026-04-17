@@ -1,7 +1,9 @@
 package vn.fernirx.clothes.catalog.service;
 
 import vn.fernirx.clothes.catalog.dto.request.AdminProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductRequest;
 import vn.fernirx.clothes.catalog.dto.request.ProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductRequest;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
 import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
 import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
@@ -26,4 +28,10 @@ public interface ProductService {
             AdminProductFilterRequest filter);
 
     AdminProductDetailResponse getById(Long id);
+
+    AdminProductDetailResponse create(CreateProductRequest request);
+
+    AdminProductDetailResponse update(Long id, UpdateProductRequest request);
+
+    void delete(Long id);
 }
