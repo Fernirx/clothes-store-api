@@ -62,7 +62,7 @@ public class AdminBrandController {
             summary = "Cập nhật thương hiệu",
             description = "Cập nhật thông tin của một thương hiệu dựa trên ID"
     )
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<SuccessResponse<BrandResponse>> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateBrandRequest request) {

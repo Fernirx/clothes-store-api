@@ -57,7 +57,7 @@ public class AdminCategoryController {
                 .body(SuccessResponse.of("Category created successfully", data));
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @Operation(
             summary = "Cập nhật danh mục",
             description = "Cập nhật thông tin của một danh mục sản phẩm dựa trên ID"
