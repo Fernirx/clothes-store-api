@@ -5,4 +5,6 @@ import vn.fernirx.clothes.order.entity.OrderItem;
 
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     boolean existsByVariant_ProductId(Long productId);
+
+    boolean existsByVariant_Id(Long variantId);
 }
