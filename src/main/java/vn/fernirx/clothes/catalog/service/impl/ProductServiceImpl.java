@@ -24,6 +24,7 @@ import vn.fernirx.clothes.catalog.repository.ProductRepository;
 import vn.fernirx.clothes.catalog.repository.ProductSpecification;
 import vn.fernirx.clothes.catalog.service.ProductService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
+import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
@@ -118,7 +119,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         if (orderItemRepository.existsByVariant_ProductId(id)) {
-            throw new ResourceAlreadyExistsException("Product");
+            throw new ResourceInUseException("Product");
         }
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product"));
