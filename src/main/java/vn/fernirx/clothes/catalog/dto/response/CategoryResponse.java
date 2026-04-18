@@ -12,5 +12,4 @@ public record CategoryResponse(
         Boolean isActive,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
-) {
-}
+) {}

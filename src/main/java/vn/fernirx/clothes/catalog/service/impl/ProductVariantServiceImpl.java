@@ -3,7 +3,8 @@ package vn.fernirx.clothes.catalog.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.fernirx.clothes.catalog.dto.request.ProductVariantRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductVariantRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductVariantRequest;
 import vn.fernirx.clothes.catalog.dto.response.ProductVariantResponse;
 import vn.fernirx.clothes.catalog.entity.Product;
 import vn.fernirx.clothes.catalog.entity.ProductVariant;
@@ -14,85 +15,71 @@ import vn.fernirx.clothes.catalog.service.ProductVariantService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
-import vn.fernirx.clothes.inventory.repository.PurchaseItemRepository;
+import vn.fernirx.clothes.order.repository.OrderItemRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductVariantServiceImpl implements ProductVariantService {
-
     private final ProductVariantRepository productVariantRepository;
     private final ProductRepository productRepository;
-    private final PurchaseItemRepository purchaseItemRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductVariantMapper productVariantMapper;
 
     @Override
-    public List<ProductVariantResponse> getByProductId(Long productId) {
+    @Transactional(readOnly = true)
+    public List<ProductVariantResponse> getAll(Long productId) {
+        return productVariantRepository.findAllByProductId(productId)
+                .stream().map(productVariantMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductVariantResponse getById(Long productId, Long id) {
+        ProductVariant productVariant = productVariantRepository.findByIdAndProductId(id, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product Variant"));
+        return productVariantMapper.toResponse(productVariant);
+    }
+
+    @Override
+    public ProductVariantResponse create(Long productId, CreateProductVariantRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        if (productVariantRepository
+                .existsByProductIdAndSizeAndColor(productId, request.size(), request.color())) {
+            throw new ResourceAlreadyExistsException("Product Variant");
+        }
+        if (productVariantRepository.existsBySku(request.sku())) {
+            throw new ResourceAlreadyExistsException("Product Variant");
+        }
+        ProductVariant productVariant = productVariantMapper.toEntity(request);
+        productVariant.setIsActive(true);
+        productVariant.setProduct(product);
+        productVariantRepository.save(productVariant);
+        return productVariantMapper.toResponse(productVariant);
+    }
+
+    @Override
+    public ProductVariantResponse update(Long productId, Long id, UpdateProductVariantRequest request) {
         if (!productRepository.existsById(productId)) {
             throw new ResourceNotFoundException("Product");
         }
-        return productVariantRepository.findByProductId(productId).stream()
-                .map(productVariantMapper::toResponse)
-                .collect(Collectors.toList());
+        ProductVariant productVariant = productVariantRepository.findByIdAndProductId(id, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product Variant"));
+        productVariantMapper.updateFromRequest(request, productVariant);
+        productVariantRepository.save(productVariant);
+        return productVariantMapper.toResponse(productVariant);
     }
 
     @Override
-    public ProductVariantResponse getById(Long id) {
-        ProductVariant variant = findVariantById(id);
-        return productVariantMapper.toResponse(variant);
-    }
-
-    @Override
-    @Transactional
-    public ProductVariantResponse create(ProductVariantRequest request) {
-        if (productVariantRepository.existsBySku(request.getSku())) {
-            throw new ResourceAlreadyExistsException("ProductVariant with SKU '" + request.getSku() + "'");
-        }
-
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product"));
-
-        ProductVariant variant = productVariantMapper.toEntity(request);
-        variant.setProduct(product);
-
-        ProductVariant saved = productVariantRepository.save(variant);
-        return productVariantMapper.toResponse(saved);
-    }
-
-    @Override
-    @Transactional
-    public ProductVariantResponse update(Long id, ProductVariantRequest request) {
-        ProductVariant variant = findVariantById(id);
-
-        if (productVariantRepository.existsBySkuAndIdNot(request.getSku(), id)) {
-            throw new ResourceAlreadyExistsException("ProductVariant with SKU '" + request.getSku() + "'");
-        }
-
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product"));
-
-        variant.setProduct(product);
-        productVariantMapper.updateFromRequest(request, variant);
-
-        ProductVariant saved = productVariantRepository.save(variant);
-        return productVariantMapper.toResponse(saved);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        ProductVariant variant = findVariantById(id);
-        if (purchaseItemRepository.existsByVariantId(id)) {
-            throw new ResourceInUseException("ProductVariant");
-        }
-        productVariantRepository.delete(variant);
-    }
-
-    private ProductVariant findVariantById(Long id) {
-        return productVariantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ProductVariant"));
+    public void delete(Long productId, Long id) {
+        if (orderItemRepository.existsByVariant_Id(id))
+            throw new ResourceInUseException("Product Variant");
+        ProductVariant productVariant = productVariantRepository.findByIdAndProductId(id, productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product Variant"));
+        productVariantRepository.delete(productVariant);
     }
 }

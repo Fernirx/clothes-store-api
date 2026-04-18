@@ -1,19 +1,12 @@
 package vn.fernirx.clothes.catalog.service;
 
-import vn.fernirx.clothes.catalog.dto.request.ProductImageRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductImageRequest;
 import vn.fernirx.clothes.catalog.dto.response.ProductImageResponse;
 
-import java.util.List;
-
 public interface ProductImageService {
+    ProductImageResponse create(Long productId, CreateProductImageRequest request);
 
-    List<ProductImageResponse> getByProductId(Long productId);
+    void delete(Long productId, Long id);
 
-    ProductImageResponse getById(Long id);
-
-    ProductImageResponse create(ProductImageRequest request);
-
-    ProductImageResponse update(Long id, ProductImageRequest request);
-
-    void delete(Long id);
+    void setImagePrimary(Long productId, Long id);
 }

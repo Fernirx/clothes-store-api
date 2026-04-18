@@ -1,20 +1,37 @@
 package vn.fernirx.clothes.catalog.service;
 
-import vn.fernirx.clothes.catalog.dto.request.ProductRequest;
-import vn.fernirx.clothes.catalog.dto.response.ProductResponse;
+import vn.fernirx.clothes.catalog.dto.request.AdminProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductRequest;
+import vn.fernirx.clothes.catalog.dto.request.ProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductRequest;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
+import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
+import vn.fernirx.clothes.catalog.dto.response.ProductSummaryResponse;
 import vn.fernirx.clothes.common.response.PageResponse;
 
 public interface ProductService {
+    PageResponse<ProductSummaryResponse> getAllByActiveTrue(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir,
+            ProductFilterRequest filter);
 
-    PageResponse<ProductResponse> getAll(Integer page, Integer size, String sortBy, String sortDir);
+    ProductDetailResponse getDetailBySlug(String slug);
 
-    PageResponse<ProductResponse> getActive(Integer page, Integer size, String sortBy, String sortDir);
+    PageResponse<AdminProductSummaryResponse> getProductsForAdmin(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir,
+            AdminProductFilterRequest filter);
 
-    ProductResponse getById(Long id);
+    AdminProductDetailResponse getById(Long id);
 
-    ProductResponse create(ProductRequest request);
+    AdminProductDetailResponse create(CreateProductRequest request);
 
-    ProductResponse update(Long id, ProductRequest request);
+    AdminProductDetailResponse update(Long id, UpdateProductRequest request);
 
     void delete(Long id);
 }

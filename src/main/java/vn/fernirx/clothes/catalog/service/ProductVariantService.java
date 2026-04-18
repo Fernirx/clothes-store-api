@@ -1,19 +1,19 @@
 package vn.fernirx.clothes.catalog.service;
 
-import vn.fernirx.clothes.catalog.dto.request.ProductVariantRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductVariantRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductVariantRequest;
 import vn.fernirx.clothes.catalog.dto.response.ProductVariantResponse;
 
 import java.util.List;
 
 public interface ProductVariantService {
+    List<ProductVariantResponse> getAll(Long productId);
 
-    List<ProductVariantResponse> getByProductId(Long productId);
+    ProductVariantResponse getById(Long productId, Long id);
 
-    ProductVariantResponse getById(Long id);
+    ProductVariantResponse create(Long productId, CreateProductVariantRequest request);
 
-    ProductVariantResponse create(ProductVariantRequest request);
+    ProductVariantResponse update(Long productId, Long id, UpdateProductVariantRequest request);
 
-    ProductVariantResponse update(Long id, ProductVariantRequest request);
-
-    void delete(Long id);
+    void delete(Long productId, Long id);
 }

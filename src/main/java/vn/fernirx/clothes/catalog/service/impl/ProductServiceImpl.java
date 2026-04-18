@@ -1,134 +1,128 @@
 package vn.fernirx.clothes.catalog.service.impl;
 
+import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.fernirx.clothes.catalog.dto.request.ProductRequest;
-import vn.fernirx.clothes.catalog.dto.response.ProductResponse;
+import vn.fernirx.clothes.catalog.dto.request.AdminProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductRequest;
+import vn.fernirx.clothes.catalog.dto.request.ProductFilterRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateProductRequest;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductDetailResponse;
+import vn.fernirx.clothes.catalog.dto.response.AdminProductSummaryResponse;
+import vn.fernirx.clothes.catalog.dto.response.ProductDetailResponse;
+import vn.fernirx.clothes.catalog.dto.response.ProductSummaryResponse;
 import vn.fernirx.clothes.catalog.entity.Brand;
-import vn.fernirx.clothes.catalog.entity.Category;
 import vn.fernirx.clothes.catalog.entity.Product;
 import vn.fernirx.clothes.catalog.mapper.ProductMapper;
+import vn.fernirx.clothes.catalog.repository.AdminProductSpecification;
 import vn.fernirx.clothes.catalog.repository.BrandRepository;
-import vn.fernirx.clothes.catalog.repository.CategoryRepository;
 import vn.fernirx.clothes.catalog.repository.ProductRepository;
+import vn.fernirx.clothes.catalog.repository.ProductSpecification;
 import vn.fernirx.clothes.catalog.service.ProductService;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceInUseException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
-import vn.fernirx.clothes.inventory.repository.PurchaseItemRepository;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.util.PaginationUtil;
-
-import java.util.HashSet;
-import java.util.Set;
+import vn.fernirx.clothes.order.repository.OrderItemRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class ProductServiceImpl implements ProductService {
-
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
-    private final CategoryRepository categoryRepository;
-    private final PurchaseItemRepository purchaseItemRepository;
+    private final OrderItemRepository orderItemRepository;
     private final ProductMapper productMapper;
+    private final Slugify slugify;
 
     @Override
-    public PageResponse<ProductResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
+    @Transactional(readOnly = true)
+    public PageResponse<ProductSummaryResponse> getAllByActiveTrue(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir,
+            ProductFilterRequest filter) {
         Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, sortDir);
-        Page<ProductResponse> responsePage = productRepository.findAll(pageable)
-                .map(productMapper::toResponse);
-        return PageResponse.of(responsePage);
+        Specification<Product> specification = ProductSpecification.build(filter);
+        Page<ProductSummaryResponse> data = productRepository.findAll(specification, pageable)
+                .map(productMapper::toProductSummaryResponse);
+        return PageResponse.of(data);
     }
 
     @Override
-    public PageResponse<ProductResponse> getActive(Integer page, Integer size, String sortBy, String sortDir) {
+    @Transactional(readOnly = true)
+    public ProductDetailResponse getDetailBySlug(String slug) {
+        Product product = productRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        return productMapper.toProductDetailResponse(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<AdminProductSummaryResponse> getProductsForAdmin(
+            Integer page,
+            Integer size,
+            String sortBy,
+            String sortDir,
+            AdminProductFilterRequest filter) {
         Pageable pageable = PaginationUtil.createPageable(page, size, sortBy, sortDir);
-        Page<ProductResponse> responsePage = productRepository.findByIsActiveTrue(pageable)
-                .map(productMapper::toResponse);
-        return PageResponse.of(responsePage);
+        Specification<Product> specification = AdminProductSpecification.build(filter);
+        Page<AdminProductSummaryResponse> data = productRepository.findAll(specification, pageable)
+                .map(productMapper::toAdminProductSummaryResponse);
+        return PageResponse.of(data);
     }
 
     @Override
-    public ProductResponse getById(Long id) {
-        Product product = findProductById(id);
-        return productMapper.toResponse(product);
+    @Transactional(readOnly = true)
+    public AdminProductDetailResponse getById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        return productMapper.toAdminProductDetailResponse(product);
     }
 
     @Override
-    @Transactional
-    public ProductResponse create(ProductRequest request) {
-        if (productRepository.existsBySlug(request.getSlug())) {
-            throw new ResourceAlreadyExistsException("Product with slug '" + request.getSlug() + "'");
+    public AdminProductDetailResponse create(CreateProductRequest request) {
+        if (productRepository.existsByNameOrCode(request.name(), request.code())) {
+            throw new ResourceAlreadyExistsException("Product");
         }
-        if (productRepository.existsByCode(request.getCode())) {
-            throw new ResourceAlreadyExistsException("Product with code '" + request.getCode() + "'");
-        }
-
-        Brand brand = brandRepository.findById(request.getBrandId())
+        Brand brand = brandRepository.findById(request.brandId())
                 .orElseThrow(() -> new ResourceNotFoundException("Brand"));
-
         Product product = productMapper.toEntity(request);
         product.setBrand(brand);
-
-        if (request.getCategoryIds() != null && !request.getCategoryIds().isEmpty()) {
-            Set<Category> categories = resolveCategories(request.getCategoryIds());
-            product.setCategories(categories);
-        }
-
-        Product saved = productRepository.save(product);
-        return productMapper.toResponse(saved);
+        product.setSlug(slugify.slugify(request.name()));
+        productRepository.save(product);
+        return productMapper.toAdminProductDetailResponse(product);
     }
 
     @Override
-    @Transactional
-    public ProductResponse update(Long id, ProductRequest request) {
-        Product product = findProductById(id);
-
-        if (productRepository.existsBySlugAndIdNot(request.getSlug(), id)) {
-            throw new ResourceAlreadyExistsException("Product with slug '" + request.getSlug() + "'");
+    public AdminProductDetailResponse update(Long id, UpdateProductRequest request) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product"));
+        if (request.name() != null
+                && !product.getName().equals(request.name())
+                && productRepository.existsByName(request.name())) {
+            throw new ResourceAlreadyExistsException("Product");
         }
-
-        Brand brand = brandRepository.findById(request.getBrandId())
-                .orElseThrow(() -> new ResourceNotFoundException("Brand"));
-
-        product.setBrand(brand);
         productMapper.updateFromRequest(request, product);
-
-        if (request.getCategoryIds() != null) {
-            Set<Category> categories = resolveCategories(request.getCategoryIds());
-            product.setCategories(categories);
-        }
-
-        Product saved = productRepository.save(product);
-        return productMapper.toResponse(saved);
+        if (request.name() != null)
+            product.setSlug(slugify.slugify(request.name()));
+        productRepository.save(product);
+        return productMapper.toAdminProductDetailResponse(product);
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
-        Product product = findProductById(id);
-        if (purchaseItemRepository.existsByVariantProductId(id)) {
+        if (orderItemRepository.existsByVariant_ProductId(id)) {
             throw new ResourceInUseException("Product");
         }
-        productRepository.delete(product);
-    }
-
-    private Product findProductById(Long id) {
-        return productRepository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product"));
-    }
-
-    private Set<Category> resolveCategories(Set<Long> categoryIds) {
-        Set<Category> categories = new HashSet<>();
-        for (Long categoryId : categoryIds) {
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category"));
-            categories.add(category);
-        }
-        return categories;
+        productRepository.delete(product);
     }
 }

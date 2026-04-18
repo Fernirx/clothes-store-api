@@ -2,27 +2,21 @@ package vn.fernirx.clothes.catalog.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import vn.fernirx.clothes.catalog.dto.request.ProductImageRequest;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
+import vn.fernirx.clothes.catalog.dto.request.CreateProductImageRequest;
 import vn.fernirx.clothes.catalog.dto.response.ProductImageResponse;
 import vn.fernirx.clothes.catalog.entity.ProductImage;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.ERROR
+)
 public interface ProductImageMapper {
+    ProductImageResponse toResponse(ProductImage productImage);
 
-    @Mapping(source = "product.id", target = "productId")
-    ProductImageResponse toResponse(ProductImage image);
-
-    @Mapping(target = "product", ignore = true)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "isPrimary", defaultExpression = "java(Boolean.FALSE)")
-    ProductImage toEntity(ProductImageRequest request);
-
     @Mapping(target = "product", ignore = true)
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "isPrimary", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateFromRequest(ProductImageRequest request, @MappingTarget ProductImage image);
+    ProductImage toEntity(CreateProductImageRequest createProductImageRequest);
 }

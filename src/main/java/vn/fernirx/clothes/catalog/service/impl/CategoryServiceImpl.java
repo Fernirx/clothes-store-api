@@ -1,11 +1,13 @@
 package vn.fernirx.clothes.catalog.service.impl;
 
+import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vn.fernirx.clothes.catalog.dto.request.CategoryRequest;
+import vn.fernirx.clothes.catalog.dto.request.CreateCategoryRequest;
+import vn.fernirx.clothes.catalog.dto.request.UpdateCategoryRequest;
 import vn.fernirx.clothes.catalog.dto.response.CategoryResponse;
 import vn.fernirx.clothes.catalog.entity.Category;
 import vn.fernirx.clothes.catalog.mapper.CategoryMapper;
@@ -25,10 +27,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
-
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final CategoryMapper categoryMapper;
+    private final Slugify slugify;
 
     @Override
     public PageResponse<CategoryResponse> getAll(Integer page, Integer size, String sortBy, String sortDir) {
@@ -53,42 +55,40 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponse create(CategoryRequest request) {
-        if (categoryRepository.existsBySlug(request.getSlug())) {
-            throw new ResourceAlreadyExistsException("Category with slug '" + request.getSlug() + "'");
+    public CategoryResponse create(CreateCategoryRequest request) {
+        if (categoryRepository.existsByName(request.name())) {
+            throw new ResourceAlreadyExistsException("Category");
         }
 
         Category category = categoryMapper.toEntity(request);
-
-        if (request.getParentId() != null) {
-            Category parent = findCategoryById(request.getParentId());
+        if (request.parentId() != null) {
+            Category parent = findCategoryById(request.parentId());
             category.setParent(parent);
         }
-
-        Category saved = categoryRepository.save(category);
-        return categoryMapper.toResponse(saved);
+        category.setSlug(slugify.slugify(category.getName()));
+        categoryRepository.save(category);
+        return categoryMapper.toResponse(category);
     }
 
     @Override
     @Transactional
-    public CategoryResponse update(Long id, CategoryRequest request) {
+    public CategoryResponse update(Long id, UpdateCategoryRequest request) {
         Category category = findCategoryById(id);
 
-        if (categoryRepository.existsBySlugAndIdNot(request.getSlug(), id)) {
-            throw new ResourceAlreadyExistsException("Category with slug '" + request.getSlug() + "'");
+        if (request.name() != null && !request.name().equals(category.getName())
+                && categoryRepository.existsByName(request.name())) {
+            throw new ResourceAlreadyExistsException("Category");
         }
 
         categoryMapper.updateFromRequest(request, category);
-
-        if (request.getParentId() != null) {
-            Category parent = findCategoryById(request.getParentId());
+        if (request.parentId() != null) {
+            Category parent = findCategoryById(request.parentId());
             category.setParent(parent);
-        } else {
-            category.setParent(null);
         }
-
-        Category saved = categoryRepository.save(category);
-        return categoryMapper.toResponse(saved);
+        if (request.name() != null)
+            category.setSlug(slugify.slugify(request.name()));
+        categoryRepository.save(category);
+        return categoryMapper.toResponse(category);
     }
 
     @Override
@@ -98,10 +98,26 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryRepository.existsByParentId(id)) {
             throw new ResourceInUseException("Category");
         }
-        if (productRepository.existsByCategoriesId(id)) {
+        if (productRepository.existsByProductCategories_Category(category)) {
             throw new ResourceInUseException("Category");
         }
         categoryRepository.delete(category);
+    }
+
+    @Override
+    public CategoryResponse getBySlug(String slug) {
+        Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Category"));
+        return categoryMapper.toResponse(category);
+    }
+
+    @Override
+    public List<CategoryResponse> getChildrenBySlug(String slug) {
+        Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Category"));
+        return categoryRepository.findByParent(category)
+                .stream().map(categoryMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     private Category findCategoryById(Long id) {
