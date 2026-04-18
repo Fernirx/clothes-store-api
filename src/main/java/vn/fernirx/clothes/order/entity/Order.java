@@ -3,6 +3,9 @@ package vn.fernirx.clothes.order.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import vn.fernirx.clothes.cart.entity.GuestSession;
 import vn.fernirx.clothes.common.entity.BaseEntity;
 
 import java.util.LinkedHashSet;
@@ -24,4 +27,9 @@ import java.util.Set;
 public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order")
     private Set<OrderItem> orderItems = new LinkedHashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @JoinColumn(name = "guest_token", referencedColumnName = "guest_token")
+    private GuestSession guestToken;
 }
