@@ -3,9 +3,7 @@ package vn.fernirx.clothes.catalog.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,6 +12,8 @@ import java.io.Serializable;
 @Setter
 @EqualsAndHashCode
 @Embeddable
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductCategoryId implements Serializable {
     @Serial
     private static final long serialVersionUID = -1100399594927158904L;
