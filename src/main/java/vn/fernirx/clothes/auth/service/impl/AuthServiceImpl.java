@@ -1,10 +1,7 @@
 package vn.fernirx.clothes.auth.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +16,11 @@ import vn.fernirx.clothes.auth.exception.AccountDisabledException;
 import vn.fernirx.clothes.auth.exception.InvalidCredentialsException;
 import vn.fernirx.clothes.auth.service.AuthService;
 import vn.fernirx.clothes.auth.service.OtpService;
+import vn.fernirx.clothes.common.enums.BlacklistReason;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.common.exception.ResourceAlreadyExistsException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.exception.TokenException;
-import vn.fernirx.clothes.common.enums.BlacklistReason;
 import vn.fernirx.clothes.security.CustomUserDetails;
 import vn.fernirx.clothes.security.JwtProvider;
 import vn.fernirx.clothes.security.SecurityUtils;
@@ -32,7 +29,6 @@ import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.entity.UserProfile;
 import vn.fernirx.clothes.user.repository.UserProfileRepository;
 import vn.fernirx.clothes.user.repository.UserRepository;
-import vn.fernirx.clothes.user.service.impl.CustomUserDetailsServiceImpl;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
             );
         } catch (BadCredentialsException e) {
             throw new InvalidCredentialsException();
-        } catch (DisabledException e) {
+        } catch (DisabledException | LockedException e) {
             throw new AccountDisabledException();
         }
 
