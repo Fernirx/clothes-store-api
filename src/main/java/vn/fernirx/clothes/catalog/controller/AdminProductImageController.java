@@ -12,7 +12,7 @@ import vn.fernirx.clothes.catalog.service.ProductImageService;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 
 @RestController
-@RequestMapping("/api/admin/products/{productId}/images")
+@RequestMapping("/admin/products/{productId}/images")
 @RequiredArgsConstructor
 public class AdminProductImageController {
     private final ProductImageService productImageService;
