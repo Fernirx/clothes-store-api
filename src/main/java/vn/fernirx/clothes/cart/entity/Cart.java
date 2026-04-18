@@ -28,7 +28,7 @@ public class Cart extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "guest_token", referencedColumnName = "guest_token")
-    private GuestSession guestToken;
+    private GuestSession guestSession;
 
     @OneToMany(mappedBy = "cart")
     private Set<CartItem> cartItems = new LinkedHashSet<>();

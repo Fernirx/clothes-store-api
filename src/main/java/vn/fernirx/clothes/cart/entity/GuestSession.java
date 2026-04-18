@@ -3,20 +3,19 @@ package vn.fernirx.clothes.cart.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import vn.fernirx.clothes.order.entity.Order;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "guest_sessions", indexes = {@Index(name = "idx_guest_sessions_expires",
         columnList = "expires_at")}, uniqueConstraints = {@UniqueConstraint(name = "guest_token_UNIQUE",
         columnNames = {"guest_token"})})
@@ -46,10 +45,4 @@ public class GuestSession {
     @NotNull
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
-
-    @OneToOne(mappedBy = "guestToken")
-    private Cart cart;
-
-    @OneToMany(mappedBy = "guestToken")
-    private Set<Order> orders = new LinkedHashSet<>();
 }
