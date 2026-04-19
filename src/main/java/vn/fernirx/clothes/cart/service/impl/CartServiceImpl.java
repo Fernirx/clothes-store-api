@@ -59,6 +59,31 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public CartResponse updateQuantity(Long userId, String guestToken, Long id, Integer quantity) {
+        Cart cart = getOrCreateCart(userId, guestToken);
+        CartItem item = cartItemRepository.findByIdAndCartId(id, cart.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item"));
+        if (quantity <= 0) {
+            cart.getCartItems().remove(item);
+            cartItemRepository.delete(item);
+        } else {
+            item.setQuantity(quantity);
+            cartItemRepository.save(item);
+        }
+        return buildCartResponse(cart);
+    }
+
+    @Override
+    public CartResponse removeItem(Long userId, String guestToken, Long itemId) {
+        Cart cart = getOrCreateCart(userId, guestToken);
+        CartItem cartItem = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart Item"));
+        cart.getCartItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
+        return buildCartResponse(cart);
+    }
+
+    @Override
     public CartResponse getCart(Long userId, String guestToken) {
         Cart cart = getOrCreateCart(userId, guestToken);
         return buildCartResponse(cart);

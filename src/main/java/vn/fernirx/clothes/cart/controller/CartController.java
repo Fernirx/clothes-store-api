@@ -1,6 +1,8 @@
 package vn.fernirx.clothes.cart.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,6 +40,33 @@ public class CartController {
         CartResponse data = cartService.addToCart(userId, guestToken, request);
         return ResponseEntity.ok(SuccessResponse.of(
                 "Item added successfully",
+                data
+        ));
+    }
+
+    @PatchMapping("/items/{id}")
+    public ResponseEntity<SuccessResponse<CartResponse>> updateQuantity(
+            @PathVariable Long id,
+            @Valid @NotNull @Min(0) @RequestParam Integer quantity,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestHeader(value = "X-GUEST-TOKEN", required = false) String guestToken) {
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        CartResponse data = cartService.updateQuantity(userId, guestToken, id, quantity);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Item updated successfully",
+                data
+        ));
+    }
+
+    @DeleteMapping("/items/{id}")
+    public ResponseEntity<SuccessResponse<CartResponse>> deleteItem(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestHeader(value = "X-GUEST-TOKEN", required = false) String guestToken) {
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        CartResponse data = cartService.removeItem(userId, guestToken, id);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Item deleted successfully",
                 data
         ));
     }
