@@ -30,6 +30,7 @@ public class GuestSessionServiceImpl implements GuestSessionService {
         GuestSession guestSession = GuestSession.builder()
                 .guestToken(UUID.randomUUID().toString())
                 .expiresAt(LocalDateTime.now().plusDays(30))
+                .lastActive(LocalDateTime.now())
                 .build();
         return guestSessionRepository.save(guestSession);
     }

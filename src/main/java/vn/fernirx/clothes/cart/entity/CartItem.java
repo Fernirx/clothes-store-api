@@ -2,8 +2,7 @@ package vn.fernirx.clothes.cart.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -13,6 +12,9 @@ import vn.fernirx.clothes.common.entity.BaseEntity;
 @Getter
 @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "cart_items", indexes = {
         @Index(name = "idx_cart_items_cart",
                 columnList = "cart_id"),
