@@ -22,6 +22,7 @@ import vn.fernirx.clothes.user.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -43,7 +44,6 @@ public class CartServiceImpl implements CartService {
                 .orElse(null);
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + request.quantity());
-            cartItemRepository.save(existingItem);
         } else {
             ProductVariant productVariant = productVariantRepository.findById(request.variantId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product Variant"));
@@ -52,7 +52,6 @@ public class CartServiceImpl implements CartService {
                     .variant(productVariant)
                     .quantity(request.quantity())
                     .build();
-            cartItemRepository.save(newItem);
             cart.getCartItems().add(newItem);
         }
         return buildCartResponse(cart);
@@ -65,10 +64,8 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart Item"));
         if (quantity <= 0) {
             cart.getCartItems().remove(item);
-            cartItemRepository.delete(item);
         } else {
             item.setQuantity(quantity);
-            cartItemRepository.save(item);
         }
         return buildCartResponse(cart);
     }
@@ -79,8 +76,55 @@ public class CartServiceImpl implements CartService {
         CartItem cartItem = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart Item"));
         cart.getCartItems().remove(cartItem);
-        cartItemRepository.delete(cartItem);
         return buildCartResponse(cart);
+    }
+
+    @Override
+    public void clearCart(Long userId, String guestToken) {
+        Cart cart = getOrCreateCart(userId, guestToken);
+        cart.getCartItems().clear();
+    }
+
+    @Override
+    public void mergeCart(Long userId, String guestToken) {
+        Cart guestCart = cartRepository.findByGuestSession_GuestToken(guestToken)
+                .orElse(null);
+
+        if (guestCart == null) return;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Cart userCart = cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
+
+        for (CartItem guestItem : guestCart.getCartItems()) {
+            CartItem existing = userCart.getCartItems().stream()
+                    .filter(i -> Objects.equals(
+                            i.getVariant().getId(),
+                            guestItem.getVariant().getId()
+                    ))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existing != null) {
+                existing.setQuantity(
+                        existing.getQuantity() + guestItem.getQuantity()
+                );
+            } else {
+                CartItem newItem = new CartItem();
+                newItem.setCart(userCart);
+                newItem.setVariant(guestItem.getVariant());
+                newItem.setQuantity(guestItem.getQuantity());
+                userCart.getCartItems().add(newItem);
+            }
+        }
+        guestCart.getCartItems().clear();
+        cartRepository.delete(guestCart);
     }
 
     @Override
