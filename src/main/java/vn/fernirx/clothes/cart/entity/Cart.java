@@ -30,6 +30,6 @@ public class Cart extends BaseEntity {
     @JoinColumn(name = "guest_token", referencedColumnName = "guest_token")
     private GuestSession guestSession;
 
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<CartItem> cartItems = new LinkedHashSet<>();
 }
