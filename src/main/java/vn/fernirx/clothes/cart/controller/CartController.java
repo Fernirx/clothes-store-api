@@ -70,4 +70,28 @@ public class CartController {
                 data
         ));
     }
+
+    @DeleteMapping
+    public ResponseEntity<SuccessResponse<Void>> clearCart(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestHeader(value = "X-GUEST-TOKEN", required = false) String guestToken) {
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        cartService.clearCart(userId, guestToken);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Cart cleared successfully"
+        ));
+    }
+
+    @PostMapping("/merge")
+    public ResponseEntity<SuccessResponse<CartResponse>> mergeCartAfterLogin(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestHeader(value = "X-GUEST-TOKEN", required = false) String guestToken) {
+        Long userId = userDetails != null ? userDetails.getId() : null;
+        cartService.mergeCart(userId, guestToken);
+        CartResponse response = cartService.getCart(userId, null);
+        return ResponseEntity.ok(SuccessResponse.of(
+                "Cart merge successfully",
+                response
+        ));
+    }
 }
