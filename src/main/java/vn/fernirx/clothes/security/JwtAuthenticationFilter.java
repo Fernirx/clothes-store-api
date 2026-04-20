@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
-import vn.fernirx.clothes.common.exception.TokenException;
 import vn.fernirx.clothes.security.token.TokenBlacklistService;
 
 import java.io.IOException;
@@ -27,7 +26,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final TokenBlacklistService tokenBlacklistService;
 
-
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -38,18 +36,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        try {
-            String token = extractJwtToken(request);
-            if (isValidToken(token)) {
-                if (tokenBlacklistService.isBlacklisted(token)) {
-                    throw TokenException.invalid();
-                }
-                setAuthenticationContext(token, request);
-            }
-            filterChain.doFilter(request, response);
-        } catch (TokenException ex) {
-            authenticationEntryPoint.commence(request, response, ex);
+        String token = extractJwtToken(request);
+        if (isValidToken(token) && !tokenBlacklistService.isBlacklisted(token)) {
+            setAuthenticationContext(token, request);
         }
+        filterChain.doFilter(request, response);
     }
 
     /* ================== PRIVATE HELPERS ================== */
@@ -64,7 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidToken(String token) {
-        return token != null && jwtProvider.validateAccessToken(token);
+        if (token == null) return false;
+        try {
+            return jwtProvider.validateAccessToken(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private void setAuthenticationContext(String token, HttpServletRequest request) {

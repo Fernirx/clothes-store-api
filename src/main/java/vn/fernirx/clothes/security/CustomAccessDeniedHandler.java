@@ -28,7 +28,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         int statusCode = errorCode.getHttpStatus().value();
         ErrorResponse errorResponse = ErrorResponse.of(
                 errorCode,
-                "You do not have permission to access this resource, ba"
+                "You do not have permission to access this resource"
         );
         response.setContentType(SecurityConstants.CONTENT_TYPE_JSON);
         response.setStatus(statusCode);
