@@ -14,7 +14,7 @@ import vn.fernirx.clothes.inventory.dto.response.InventoryTransactionResponse;
 import vn.fernirx.clothes.inventory.service.InventoryTransactionService;
 
 @RestController
-@RequestMapping("/api/v1/inventory-transactions")
+@RequestMapping("/admin/inventory-transactions")
 @RequiredArgsConstructor
 @Tag(name = "Inventory Transactions API", description = "Các API quản lý giao dịch tồn kho")
 public class InventoryTransactionController {

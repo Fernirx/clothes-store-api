@@ -10,7 +10,7 @@ import vn.fernirx.clothes.catalog.service.ProductCategoryService;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 
 @RestController
-@RequestMapping("/api/admin/products/{productId}/categories")
+@RequestMapping("/admin/products/{productId}/categories")
 @RequiredArgsConstructor
 public class AdminProductCategoryController {
     private final ProductCategoryService productCategoryService;

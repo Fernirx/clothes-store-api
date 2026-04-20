@@ -14,7 +14,7 @@ import vn.fernirx.clothes.inventory.dto.response.SupplierResponse;
 import vn.fernirx.clothes.inventory.service.SupplierService;
 
 @RestController
-@RequestMapping("/api/v1/suppliers")
+@RequestMapping("/admin/suppliers")
 @RequiredArgsConstructor
 @Tag(name = "Suppliers", description = "Các API liên quan đến nhà cung cấp")
 public class SupplierController {
