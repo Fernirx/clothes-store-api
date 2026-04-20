@@ -17,10 +17,10 @@ import vn.fernirx.clothes.user.dto.response.UserResponse;
 import vn.fernirx.clothes.user.service.UserService;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/admin/users")
 @RequiredArgsConstructor
 @Tag(name = "Users API", description = "Các API người dùng")
-public class UserController {
+public class AdminUserController {
     private final UserService userService;
 
     @GetMapping

@@ -1,13 +1,12 @@
 package vn.fernirx.clothes.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
 import vn.fernirx.clothes.common.enums.ErrorCode;
@@ -17,18 +16,21 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     private final ObjectMapper objectMapper;
 
     @Override
-    public void commence(@NonNull HttpServletRequest request,
-                         HttpServletResponse response,
-                         @NonNull AuthenticationException authException) throws IOException, ServletException {
+    public void handle(
+            @NonNull HttpServletRequest request,
+            HttpServletResponse response,
+            @NonNull AccessDeniedException accessDeniedException) throws IOException {
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+        int statusCode = errorCode.getHttpStatus().value();
+        ErrorResponse errorResponse = ErrorResponse.of(
+                errorCode,
+                "You do not have permission to access this resource"
+        );
         response.setContentType(SecurityConstants.CONTENT_TYPE_JSON);
-        ErrorResponse errorResponse;
-        int statusCode;
-        statusCode = HttpServletResponse.SC_UNAUTHORIZED;
-        errorResponse = ErrorResponse.of(ErrorCode.AUTHENTICATION_FAILED, authException.getMessage());
         response.setStatus(statusCode);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
         response.getWriter().flush();

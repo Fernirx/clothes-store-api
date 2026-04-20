@@ -14,7 +14,7 @@ import vn.fernirx.clothes.inventory.dto.response.PurchaseResponse;
 import vn.fernirx.clothes.inventory.service.PurchaseService;
 
 @RestController
-@RequestMapping("/api/v1/purchases")
+@RequestMapping("/admin/purchases")
 @RequiredArgsConstructor
 @Tag(name = "Purchase Management", description = "Các API để quản lý các giao dịch mua hàng, bao gồm tạo, cập nhật, xóa và truy vấn thông tin mua hàng.")
 public class PurchaseController {

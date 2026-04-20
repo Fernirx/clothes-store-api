@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
                             request.password()
                     )
             );
-        } catch (BadCredentialsException e) {
+        } catch (BadCredentialsException | UsernameNotFoundException e) {
             throw new InvalidCredentialsException();
         } catch (DisabledException | LockedException e) {
             throw new AccountDisabledException();

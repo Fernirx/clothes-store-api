@@ -14,7 +14,7 @@ import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentResponse;
 import vn.fernirx.clothes.inventory.service.StockAdjustmentService;
 
 @RestController
-@RequestMapping("/api/v1/stock-adjustments")
+@RequestMapping("/admin/stock-adjustments")
 @RequiredArgsConstructor
 @Tag(name = "Stock Adjustments", description = "Các API liên quan đến điều chỉnh tồn kho")
 public class StockAdjustmentController {

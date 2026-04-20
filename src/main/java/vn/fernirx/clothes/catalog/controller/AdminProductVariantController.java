@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/products/{productId}/variants")
 @RequiredArgsConstructor
-public class AdminProductVariant {
+public class AdminProductVariantController {
     private final ProductVariantService productVariantService;
 
     @GetMapping
