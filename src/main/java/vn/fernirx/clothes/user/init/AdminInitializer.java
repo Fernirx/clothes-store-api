@@ -31,6 +31,13 @@ public class AdminInitializer implements ApplicationRunner {
                     .build();
 
             userRepository.save(admin);
+        } else {
+            User user = userRepository.findByEmailIncludeDeleted(properties.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            if (!passwordEncoder.matches(properties.getPassword(), user.getPasswordHash())) {
+                user.setPasswordHash(passwordEncoder.encode(properties.getPassword()));
+                userRepository.save(user);
+            }
         }
     }
 }
