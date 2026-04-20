@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import vn.fernirx.clothes.common.constant.SecurityConstants;
+import vn.fernirx.clothes.common.exception.TokenException;
 import vn.fernirx.clothes.security.token.TokenBlacklistService;
 
 import java.io.IOException;
@@ -31,16 +32,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if  (SecurityConstants.SKIP_PATHS.contains(request.getServletPath())) {
+        try {
+            String token = extractJwtToken(request);
+            if (isValidToken(token)) {
+                if (tokenBlacklistService.isBlacklisted(token)) {
+                    throw TokenException.invalid();
+                }
+                setAuthenticationContext(token, request);
+            }
             filterChain.doFilter(request, response);
-            return;
+        } catch (TokenException ex) {
+            authenticationEntryPoint.commence(request, response, ex);
         }
-
-        String token = extractJwtToken(request);
-        if (isValidToken(token) && !tokenBlacklistService.isBlacklisted(token)) {
-            setAuthenticationContext(token, request);
-        }
-        filterChain.doFilter(request, response);
     }
 
     /* ================== PRIVATE HELPERS ================== */
@@ -55,12 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidToken(String token) {
-        if (token == null) return false;
-        try {
-            return jwtProvider.validateAccessToken(token);
-        } catch (Exception e) {
-            return false;
-        }
+        return token != null && jwtProvider.validateAccessToken(token);
     }
 
     private void setAuthenticationContext(String token, HttpServletRequest request) {
