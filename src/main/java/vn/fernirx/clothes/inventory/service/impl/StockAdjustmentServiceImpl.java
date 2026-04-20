@@ -22,6 +22,9 @@ import vn.fernirx.clothes.inventory.mapper.StockAdjustmentItemMapper;
 import vn.fernirx.clothes.inventory.mapper.StockAdjustmentMapper;
 import vn.fernirx.clothes.inventory.repository.StockAdjustmentRepository;
 import vn.fernirx.clothes.inventory.service.StockAdjustmentService;
+import vn.fernirx.clothes.security.SecurityUtils;
+import vn.fernirx.clothes.user.entity.User;
+import vn.fernirx.clothes.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +36,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
 
     private final StockAdjustmentRepository adjustmentRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final UserRepository userRepository;
     private final StockAdjustmentMapper adjustmentMapper;
     private final StockAdjustmentItemMapper stockAdjustmentItemMapper;
 
@@ -58,6 +62,7 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
             throw new ResourceAlreadyExistsException("StockAdjustment with code '" + request.getCode() + "'");
         }
         StockAdjustment adjustment = adjustmentMapper.toEntity(request);
+        adjustment.setCreatedBy(getCurrentUser());
         List<StockAdjustmentItem> items = buildItems(request.getItems(), adjustment);
         adjustment.getItems().addAll(items);
         return adjustmentMapper.toResponse(adjustmentRepository.save(adjustment));
@@ -94,6 +99,13 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
             throw new ResourceInUseException("StockAdjustment");
         }
         adjustmentRepository.delete(adjustment);
+    }
+
+    private User getCurrentUser() {
+        Long userId = SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new ResourceNotFoundException("Current user"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
     }
 
     private List<StockAdjustmentItem> buildItems(List<StockAdjustmentItemRequest> itemRequests,
