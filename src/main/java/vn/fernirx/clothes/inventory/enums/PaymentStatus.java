@@ -1,7 +1,6 @@
 package vn.fernirx.clothes.inventory.enums;
 
 public enum PaymentStatus {
-    UNPAID,
-    PARTIAL,
+    PENDING,
     PAID
 }

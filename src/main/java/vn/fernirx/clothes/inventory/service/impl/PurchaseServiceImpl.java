@@ -24,6 +24,10 @@ import vn.fernirx.clothes.inventory.mapper.PurchaseMapper;
 import vn.fernirx.clothes.inventory.repository.PurchaseRepository;
 import vn.fernirx.clothes.inventory.repository.SupplierRepository;
 import vn.fernirx.clothes.inventory.service.PurchaseService;
+import vn.fernirx.clothes.security.SecurityUtils;
+import vn.fernirx.clothes.user.entity.User;
+import vn.fernirx.clothes.user.repository.UserRepository;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -37,6 +41,7 @@ public class PurchaseServiceImpl implements PurchaseService {
     private final PurchaseRepository purchaseRepository;
     private final SupplierRepository supplierRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final UserRepository userRepository;
     private final PurchaseMapper purchaseMapper;
     private final PurchaseItemMapper purchaseItemMapper;
 
@@ -62,9 +67,11 @@ public class PurchaseServiceImpl implements PurchaseService {
             throw new ResourceAlreadyExistsException(request.getPurchaseCode());
         }
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
-                .orElseThrow(() -> new ResourceNotFoundException(""+request.getSupplierId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier"));
+        User currentUser = getCurrentUser();
         Purchase purchase = purchaseMapper.toEntity(request);
         purchase.setSupplier(supplier);
+        purchase.setCreatedBy(currentUser);
 
         List<PurchaseItem> items = buildItems(request.getItems(), purchase);
         purchase.getItems().addAll(items);
@@ -124,9 +131,17 @@ public class PurchaseServiceImpl implements PurchaseService {
             PurchaseItem item = purchaseItemMapper.toEntity(itemRequest);
             item.setPurchase(purchase);
             item.setVariant(variant);
+            item.setLineTotal(item.getUnitCost().multiply(BigDecimal.valueOf(item.getQuantityOrdered())));
             items.add(item);
         }
         return items;
+    }
+
+    private User getCurrentUser() {
+        Long userId = SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new ResourceNotFoundException("Current user"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
     }
 
     private BigDecimal calculateTotalCost(List<PurchaseItem> items) {

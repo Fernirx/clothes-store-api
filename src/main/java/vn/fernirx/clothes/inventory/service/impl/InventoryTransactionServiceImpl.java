@@ -16,6 +16,9 @@ import vn.fernirx.clothes.inventory.entity.InventoryTransaction;
 import vn.fernirx.clothes.inventory.mapper.InventoryTransactionMapper;
 import vn.fernirx.clothes.inventory.repository.InventoryTransactionRepository;
 import vn.fernirx.clothes.inventory.service.InventoryTransactionService;
+import vn.fernirx.clothes.security.SecurityUtils;
+import vn.fernirx.clothes.user.entity.User;
+import vn.fernirx.clothes.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
 
     private final InventoryTransactionRepository transactionRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final UserRepository userRepository;
     private final InventoryTransactionMapper transactionMapper;
 
     @Override
@@ -59,8 +63,14 @@ public class InventoryTransactionServiceImpl implements InventoryTransactionServ
         ProductVariant variant = productVariantRepository.findById(request.getVariantId())
                 .orElseThrow(() -> new ResourceNotFoundException("ProductVariant"));
 
+        Long userId = SecurityUtils.getCurrentUserId()
+                .orElseThrow(() -> new ResourceNotFoundException("Current user"));
+        User currentUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User"));
+
         InventoryTransaction transaction = transactionMapper.toEntity(request);
         transaction.setVariant(variant);
+        transaction.setCreatedBy(currentUser);
 
         return transactionMapper.toResponse(transactionRepository.save(transaction));
     }
