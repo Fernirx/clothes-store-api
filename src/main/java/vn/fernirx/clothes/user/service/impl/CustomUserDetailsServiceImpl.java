@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.user.entity.User;
 import vn.fernirx.clothes.user.mapper.UserMapper;
 import vn.fernirx.clothes.user.repository.UserRepository;
@@ -21,7 +20,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
     @NonNull
     public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User"));
+                .orElseThrow(() -> new UsernameNotFoundException("User"));
         return userMapper.toCustomUserDetails(user);
     }
 }
