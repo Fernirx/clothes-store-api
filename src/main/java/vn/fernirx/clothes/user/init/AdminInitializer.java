@@ -6,6 +6,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.auth.enums.Provider;
 import vn.fernirx.clothes.common.enums.UserRole;
 import vn.fernirx.clothes.user.entity.User;
@@ -19,6 +20,7 @@ public class AdminInitializer implements ApplicationRunner {
     private final AdminProperties properties;
 
     @Override
+    @Transactional
     public void run(@NonNull ApplicationArguments args) throws Exception {
         if (userRepository.existsByEmailIncludeDeleted(properties.getEmail()) == 0) {
             User admin = User.builder()
