@@ -6,6 +6,7 @@ import vn.fernirx.clothes.payment.config.VnpayProperties;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.TreeMap;
@@ -40,7 +41,8 @@ public class VNPaySignature {
         new TreeMap<>(params).forEach((k, v) -> {
             if (v != null && !v.isBlank()) {
                 if (!sb.isEmpty()) sb.append('&');
-                sb.append(k).append('=').append(v);
+                sb.append(k).append('=');
+                sb.append(URLEncoder.encode(v, StandardCharsets.US_ASCII));
             }
         });
         return sb.toString();
