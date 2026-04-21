@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.fernirx.clothes.common.exception.AppException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
 import vn.fernirx.clothes.common.enums.ErrorCode;
-import vn.fernirx.clothes.inventory.enums.PaymentStatus;
+import vn.fernirx.clothes.payment.enums.PaymentStatus;
 import vn.fernirx.clothes.order.entity.Order;
 import vn.fernirx.clothes.order.repository.OrderRepository;
 import vn.fernirx.clothes.payment.dto.PaymentRequest;

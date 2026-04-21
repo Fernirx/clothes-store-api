@@ -1,6 +1,6 @@
 package vn.fernirx.clothes.payment.dto.response;
 
-import vn.fernirx.clothes.inventory.enums.PaymentStatus;
+import vn.fernirx.clothes.payment.enums.PaymentStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

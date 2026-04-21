@@ -8,7 +8,7 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import vn.fernirx.clothes.common.entity.BaseEntity;
-import vn.fernirx.clothes.inventory.enums.PaymentStatus;
+import vn.fernirx.clothes.payment.enums.PaymentStatus;
 import vn.fernirx.clothes.order.entity.Order;
 
 import java.math.BigDecimal;
