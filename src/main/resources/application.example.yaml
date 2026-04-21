@@ -347,3 +347,15 @@ application:
     # Thời gian chờ giữa các lần gửi lại OTP (giây)
     # Dùng để chống spam gửi OTP liên tục
     resend-cooldown: ${OTP_RESEND_COOLDOWN:60}
+
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE:YOUR_TMN_CODE}
+  hash-secret: ${VNPAY_HASH_SECRET:YOUR_HASH_SECRET}
+  payment-url: ${VNPAY_PAYMENT_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+  return-url: ${VNPAY_RETURN_URL:http://localhost:8080/api/clothes/payment/vnpay-return}
+  ipn-url: ${VNPAY_IPN_URL:https://your-domain.com/api/clothes/payment/vnpay-ipn}
+  version: ${VNPAY_VERSION:2.1.0}
+  command: ${VNPAY_COMMAND:pay}
+  curr-code: ${VNPAY_CURR_CODE:VND}
+  locale: ${VNPAY_LOCALE:vn}
+  expire-minutes: ${VNPAY_EXPIRE_MINUTES:15}
