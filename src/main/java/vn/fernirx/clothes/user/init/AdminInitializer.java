@@ -36,8 +36,10 @@ public class AdminInitializer implements ApplicationRunner {
                     .orElseThrow(() -> new RuntimeException("User not found"));
             if (!passwordEncoder.matches(properties.getPassword(), user.getPasswordHash())) {
                 user.setPasswordHash(passwordEncoder.encode(properties.getPassword()));
-                userRepository.save(user);
             }
+            user.setRole(UserRole.ADMIN);
+            user.setDeleted(false);
+            userRepository.save(user);
         }
     }
 }
