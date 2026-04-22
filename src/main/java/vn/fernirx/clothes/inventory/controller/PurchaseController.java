@@ -11,6 +11,8 @@ import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.inventory.dto.request.PurchaseRequest;
 import vn.fernirx.clothes.inventory.dto.response.PurchaseResponse;
+import vn.fernirx.clothes.inventory.enums.PaymentStatus;
+import vn.fernirx.clothes.inventory.enums.PurchaseStatus;
 import vn.fernirx.clothes.inventory.service.PurchaseService;
 
 @RestController
@@ -65,5 +67,23 @@ public class PurchaseController {
     public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id) {
         purchaseService.delete(id);
         return ResponseEntity.ok(SuccessResponse.of("Purchase deleted successfully"));
+    }
+
+    @PutMapping("/{id}/status")
+    @Operation (summary = "Cập nhật trạng thái thanh toán của một giao dịch mua hàng", description = "Cập nhật trạng thái thanh toán của một giao dịch mua hàng dựa trên ID và trạng thái thanh toán mới.")
+    public ResponseEntity<SuccessResponse<Void>> updateStatus(
+            @PathVariable Long id,
+            @RequestParam PurchaseStatus status) {
+        purchaseService.updateStatus(id, status);
+        return ResponseEntity.ok(SuccessResponse.of("Purchase payment status updated successfully"));
+    }
+
+    @PutMapping("/{id}/payment-status")
+    @Operation (summary = "Cập nhật trạng thái thanh toán của một giao dịch mua hàng", description = "Cập nhật trạng thái thanh toán của một giao dịch mua hàng dựa trên ID và trạng thái thanh toán mới.")
+    public ResponseEntity<SuccessResponse<Void>> updatePaymentStatus(
+            @PathVariable Long id,
+            @RequestParam PaymentStatus paymentStatus) {
+        purchaseService.updatePaymentStatus(id, paymentStatus);
+        return ResponseEntity.ok(SuccessResponse.of("Purchase payment status updated successfully"));
     }
 }

@@ -124,4 +124,14 @@ public class StockAdjustmentServiceImpl implements StockAdjustmentService {
         }
         return items;
     }
+
+    public void updateStatus(Long id, AdjustmentStatus status) {
+        StockAdjustment adjustment = adjustmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("StockAdjustment"));
+        if (adjustment.getStatus() != status) {
+            throw new ResourceInUseException("StockAdjustment");
+        }
+        adjustment.setStatus(status);
+        adjustmentRepository.save(adjustment);
+    }
 }

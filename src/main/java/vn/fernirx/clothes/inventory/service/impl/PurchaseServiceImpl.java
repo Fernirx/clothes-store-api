@@ -18,6 +18,7 @@ import vn.fernirx.clothes.inventory.dto.response.PurchaseResponse;
 import vn.fernirx.clothes.inventory.entity.Purchase;
 import vn.fernirx.clothes.inventory.entity.PurchaseItem;
 import vn.fernirx.clothes.inventory.entity.Supplier;
+import vn.fernirx.clothes.inventory.enums.PaymentStatus;
 import vn.fernirx.clothes.inventory.enums.PurchaseStatus;
 import vn.fernirx.clothes.inventory.mapper.PurchaseItemMapper;
 import vn.fernirx.clothes.inventory.mapper.PurchaseMapper;
@@ -148,5 +149,23 @@ public class PurchaseServiceImpl implements PurchaseService {
         return items.stream()
                 .map(item -> item.getUnitCost().multiply(BigDecimal.valueOf(item.getQuantityOrdered())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void updateStatus(Long id, PurchaseStatus status){
+        Purchase purchase = purchaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase"));
+        if(status == purchase.getStatus())
+            throw new ResourceAlreadyExistsException("PaymentStatus");
+        purchase.setStatus(status);
+        purchaseRepository.save(purchase);
+    }
+
+    public void updatePaymentStatus(Long id, PaymentStatus paymentStatus){
+        Purchase purchase = purchaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Purchase"));
+        if(paymentStatus == purchase.getPaymentStatus())
+            throw new ResourceAlreadyExistsException("PaymentStatus");
+        purchase.setPaymentStatus(paymentStatus);
+        purchaseRepository.save(purchase);
     }
 }
