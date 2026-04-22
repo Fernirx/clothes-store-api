@@ -13,7 +13,7 @@ import java.util.Optional;
 )
 public interface CartItemMapper {
     @Mapping(target = "variantId", source = "variant.id")
-    @Mapping(target = "productName", source = "variant.product.name")
+    @Mapping(target = "productSlug", source = "variant.product.slug")
     @Mapping(target = "price", source = ".", qualifiedByName = "toPrice")
     @Mapping(target = "subtotal", source = ".", qualifiedByName = "toSubtotal")
     CartItemResponse toResponse(CartItem cartItem);
