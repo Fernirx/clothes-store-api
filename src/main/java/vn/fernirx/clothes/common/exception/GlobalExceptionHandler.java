@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -107,5 +108,22 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(
                         ErrorCode.INTERNAL_SERVER_ERROR,
                         "Internal Server Error"));
+    }
+
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDenied(
+            AuthorizationDeniedException ex
+    ) {
+        ErrorCode errorCode = ErrorCode.ACCESS_DENIED;
+
+        ErrorResponse response = ErrorResponse.of(
+                errorCode,
+                "You do not have permission to access this resource"
+        );
+
+        return ResponseEntity
+                .status(errorCode.getHttpStatus())
+                .body(response);
     }
 }
