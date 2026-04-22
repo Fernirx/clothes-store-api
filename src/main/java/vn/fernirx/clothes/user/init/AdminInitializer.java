@@ -41,6 +41,7 @@ public class AdminInitializer implements ApplicationRunner {
             }
             user.setRole(UserRole.ADMIN);
             user.setDeleted(false);
+            user.setVerified(true);
             userRepository.save(user);
         }
     }
