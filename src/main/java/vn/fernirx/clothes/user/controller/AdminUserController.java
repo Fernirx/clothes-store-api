@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.response.SuccessResponse;
@@ -88,6 +89,7 @@ public class AdminUserController {
             summary = "Xóa người dùng",
             description = "Thực hiện xóa mềm (soft delete) người dùng theo ID"
     )
+    @PreAuthorize("#id != authentication.principal.id")
     public ResponseEntity<SuccessResponse<Void>> deleteUserById(@PathVariable Long id) {
         userService.softDeleteById(id);
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));
@@ -98,6 +100,7 @@ public class AdminUserController {
             summary = "Xóa cứng người dùng",
             description = "Thực hiện xóa cứng người dùng theo ID"
     )
+    @PreAuthorize("#id != authentication.principal.id")
     public ResponseEntity<SuccessResponse<Void>> hardDeleteById(@PathVariable Long id) {
         userService.hardDeleteById(id);
         return ResponseEntity.ok(SuccessResponse.of("User delete successfully"));

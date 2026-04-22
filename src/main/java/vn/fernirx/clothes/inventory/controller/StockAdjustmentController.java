@@ -11,6 +11,7 @@ import vn.fernirx.clothes.common.response.PageResponse;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.inventory.dto.request.StockAdjustmentRequest;
 import vn.fernirx.clothes.inventory.dto.response.StockAdjustmentResponse;
+import vn.fernirx.clothes.inventory.enums.AdjustmentStatus;
 import vn.fernirx.clothes.inventory.service.StockAdjustmentService;
 
 @RestController
@@ -66,5 +67,14 @@ public class StockAdjustmentController {
     public ResponseEntity<SuccessResponse<Void>> delete(@PathVariable Long id) {
         stockAdjustmentService.delete(id);
         return ResponseEntity.ok(SuccessResponse.of("Stock adjustment deleted successfully"));
+    }
+
+    @PutMapping("/{id}/status")
+    @Operation( summary = "Cập nhật trạng thái điều chỉnh tồn kho", description = "Cập nhật trạng thái của một điều chỉnh tồn kho theo ID")
+    public ResponseEntity<SuccessResponse<Void>> updateStatus(
+            @PathVariable Long id,
+            @RequestParam AdjustmentStatus status) {
+        stockAdjustmentService.updateStatus(id, status);
+        return ResponseEntity.ok(SuccessResponse.of("Stock adjustment status updated successfully"));
     }
 }
