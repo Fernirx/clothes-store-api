@@ -7,9 +7,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 import vn.fernirx.clothes.common.response.SuccessResponse;
 import vn.fernirx.clothes.payment.dto.PaymentRequest;
-import vn.fernirx.clothes.payment.dto.response.PaymentResponse;
+import vn.fernirx.clothes.payment.enums.PaymentStatus;
 import vn.fernirx.clothes.payment.service.PaymentService;
 
 import java.util.Map;
@@ -33,12 +34,21 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay/return")
-    @Operation(summary = "Return URL VNPay", description = "VNPay redirect người dùng về đây sau khi thanh toán. Trả về kết quả thanh toán để frontend hiển thị.")
-    public ResponseEntity<SuccessResponse<PaymentResponse>> handleReturn(
-            @RequestParam Map<String, String> params) {
+    @Operation(
+            summary = "Return URL VNPay",
+            description = "VNPay redirect người dùng về đây sau khi thanh toán và backend sẽ redirect tiếp sang frontend."
+    )
+    public RedirectView handleReturn(@RequestParam Map<String, String> params) {
 
-        PaymentResponse response = paymentService.handleReturn(params);
-        return ResponseEntity.ok(SuccessResponse.of("Xử lý kết quả thanh toán thành công", response));
+        PaymentStatus status = paymentService.handleReturn(params);
+
+        String redirectUrl = switch (status) {
+            case SUCCESS -> "https://clothes.fernirx.io.vn/payment/success";
+            case FAILED -> "https://clothes.fernirx.io.vn/payment/failed";
+            default -> "http://localhost:3000/payment/pending";
+        };
+
+        return new RedirectView(redirectUrl);
     }
 
     @GetMapping("/vnpay/ipn")

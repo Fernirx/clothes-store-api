@@ -52,17 +52,18 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentResponse handleReturn(Map<String, String> params) {
+    public PaymentStatus handleReturn(Map<String, String> params) {
         if (!vnPayProvider.verifySignature(params)) {
             throw new AppException(ErrorCode.BAD_REQUEST, "Chữ ký VNPay không hợp lệ");
         }
 
         String txnRef = params.get("vnp_TxnRef");
         Long orderId = extractOrderId(txnRef);
+
         Payment payment = paymentRepository.findTopByOrder_IdOrderByCreatedAtDesc(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment"));
 
-        return toResponse(payment);
+        return payment.getStatus();
     }
 
     @Override
