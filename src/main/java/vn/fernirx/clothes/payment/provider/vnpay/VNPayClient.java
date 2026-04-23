@@ -31,7 +31,8 @@ public class VNPayClient {
         params.put("vnp_TmnCode",    properties.getTmnCode());
         params.put("vnp_Amount",     request.amount().multiply(BigDecimal.valueOf(100)).toBigInteger().toString());
         params.put("vnp_CurrCode",   properties.getCurrCode());
-        params.put("vnp_TxnRef",     String.valueOf(request.orderId()));
+        String txnRef = request.orderId() + "_" + now.format(VNPAY_DATE);
+        params.put("vnp_TxnRef", txnRef);
         params.put("vnp_OrderInfo",  "Thanh toan don hang " + request.orderId());
         params.put("vnp_OrderType",  "other");
         params.put("vnp_Locale",     properties.getLocale());

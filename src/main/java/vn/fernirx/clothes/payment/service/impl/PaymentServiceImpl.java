@@ -3,15 +3,15 @@ package vn.fernirx.clothes.payment.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.fernirx.clothes.common.enums.ErrorCode;
 import vn.fernirx.clothes.common.exception.AppException;
 import vn.fernirx.clothes.common.exception.ResourceNotFoundException;
-import vn.fernirx.clothes.common.enums.ErrorCode;
-import vn.fernirx.clothes.payment.enums.PaymentStatus;
 import vn.fernirx.clothes.order.entity.Order;
 import vn.fernirx.clothes.order.repository.OrderRepository;
 import vn.fernirx.clothes.payment.dto.PaymentRequest;
 import vn.fernirx.clothes.payment.dto.response.PaymentResponse;
 import vn.fernirx.clothes.payment.entity.Payment;
+import vn.fernirx.clothes.payment.enums.PaymentStatus;
 import vn.fernirx.clothes.payment.provider.vnpay.VNPayProvider;
 import vn.fernirx.clothes.payment.repository.PaymentRepository;
 import vn.fernirx.clothes.payment.service.PaymentService;
@@ -57,7 +57,8 @@ public class PaymentServiceImpl implements PaymentService {
             throw new AppException(ErrorCode.BAD_REQUEST, "Chữ ký VNPay không hợp lệ");
         }
 
-        Long orderId = Long.parseLong(params.get("vnp_TxnRef"));
+        String txnRef = params.get("vnp_TxnRef");
+        Long orderId = extractOrderId(txnRef);
         Payment payment = paymentRepository.findTopByOrder_IdOrderByCreatedAtDesc(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment"));
 
@@ -78,8 +79,8 @@ public class PaymentServiceImpl implements PaymentService {
 
         Long orderId;
         try {
-            orderId = Long.parseLong(txnRef);
-        } catch (NumberFormatException e) {
+            orderId = extractOrderId(txnRef);
+        } catch (Exception e) {
             return ipnResponse("01", "Invalid TxnRef");
         }
 
@@ -114,6 +115,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
         paymentRepository.save(payment);
 
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order"));
+        order.setPaymentStatus(vn.fernirx.clothes.order.enums.PaymentStatus.FAILED);
+
         return ipnResponse("00", "Confirm Success");
     }
 
@@ -132,5 +136,19 @@ public class PaymentServiceImpl implements PaymentService {
 
     private Map<String, String> ipnResponse(String code, String message) {
         return Map.of("RspCode", code, "Message", message);
+    }
+
+    private Long extractOrderId(String txnRef) {
+        if (txnRef == null || txnRef.isBlank()) {
+            throw new IllegalArgumentException("TxnRef is empty");
+        }
+
+        String[] parts = txnRef.split("_");
+
+        if (parts.length == 0) {
+            throw new IllegalArgumentException("Invalid TxnRef format");
+        }
+
+        return Long.parseLong(parts[0]);
     }
 }
