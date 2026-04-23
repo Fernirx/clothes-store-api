@@ -11,6 +11,9 @@ services:
       - "${HOST_PORT}:${SERVER_PORT}"
     env_file:
       - .env
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Asia/Ho_Chi_Minh"
     restart: always
     networks:
       - clothes-net
@@ -24,6 +27,7 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - "${DB_EXTERNAL_PORT}:3306"
     volumes:
